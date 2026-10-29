@@ -1,0 +1,2581 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ארכיון שיחות</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Hebrew:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EBF0ED; --surface:#FFFFFF; --surface-2:#F4F7F5; --surface-3:#E2E9E5;
+  --ink:#122420; --ink-2:#4A5C57; --ink-3:#7B8B86; --line:#D3DCD7; --line-2:#E5EBE8;
+  --teal:#0C5C55; --teal-2:#127A70; --teal-soft:#D9EAE5; --on-teal:#FFFFFF;
+  --brass:#A86E08; --brass-2:#C98A12; --brass-soft:#F5E8CC;
+  --danger:#B42318; --danger-soft:#FBE6E3;
+  --heat-0:#F1F5F3; --heat-1:#CDE5DE; --heat-2:#96CDBF; --heat-3:#58AB9B; --heat-4:#24847A; --heat-5:#0C5C55;
+  --wave:#B9C7C2; --wave-on:#0C5C55;
+  --av-s:36%; --av-l:87%; --av-ink-l:27%;
+  --shadow:0 1px 2px rgba(18,36,32,.06),0 10px 30px rgba(18,36,32,.10);
+  --font:"IBM Plex Sans Hebrew","Segoe UI",system-ui,Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B1412; --surface:#111E1B; --surface-2:#162622; --surface-3:#1D312C;
+    --ink:#E2ECE8; --ink-2:#A6B7B1; --ink-3:#70827C; --line:#263D37; --line-2:#1C302B;
+    --teal:#5BBBAC; --teal-2:#77CDBF; --teal-soft:#16362F; --on-teal:#04201B;
+    --brass:#E3A944; --brass-2:#EDBB62; --brass-soft:#382B12;
+    --danger:#F27A6F; --danger-soft:#3A1916;
+    --heat-0:#14231F; --heat-1:#173A33; --heat-2:#1D5A4F; --heat-3:#26806F; --heat-4:#3AA693; --heat-5:#6FD1BF;
+    --wave:#2F4A43; --wave-on:#6FD1BF;
+    --av-s:24%; --av-l:22%; --av-ink-l:80%;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 12px 34px rgba(0,0,0,.45);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0B1412; --surface:#111E1B; --surface-2:#162622; --surface-3:#1D312C;
+  --ink:#E2ECE8; --ink-2:#A6B7B1; --ink-3:#70827C; --line:#263D37; --line-2:#1C302B;
+  --teal:#5BBBAC; --teal-2:#77CDBF; --teal-soft:#16362F; --on-teal:#04201B;
+  --brass:#E3A944; --brass-2:#EDBB62; --brass-soft:#382B12;
+  --danger:#F27A6F; --danger-soft:#3A1916;
+  --heat-0:#14231F; --heat-1:#173A33; --heat-2:#1D5A4F; --heat-3:#26806F; --heat-4:#3AA693; --heat-5:#6FD1BF;
+  --wave:#2F4A43; --wave-on:#6FD1BF;
+  --av-s:24%; --av-l:22%; --av-ink-l:80%;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 12px 34px rgba(0,0,0,.45);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:400 14px/1.5 var(--font);-webkit-font-smoothing:antialiased;overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--teal-2);outline-offset:2px}
+svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.num,.r-time,.r-dur,.day-t,.tnum{font-variant-numeric:tabular-nums}
+mark{background:var(--brass-soft);color:inherit;border-radius:3px;padding:0 1px}
+[hidden]{display:none!important}
+
+/* ---------- layout ---------- */
+#app{display:grid;height:100vh;grid-template-columns:212px minmax(0,1fr) 0;grid-template-rows:58px minmax(0,1fr) auto;grid-template-areas:"top top top" "nav main aside" "player player player"}
+#app.has-aside{grid-template-columns:212px minmax(0,1fr) minmax(360px,440px)}
+header.top{grid-area:top;display:flex;align-items:center;gap:16px;padding:0 18px;background:var(--surface);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;inline-size:178px;flex:none;font-weight:700;font-size:16px;letter-spacing:-.01em}
+.brand .mark{display:grid;place-items:center;inline-size:32px;block-size:32px;border-radius:9px;background:var(--teal);color:var(--on-teal)}
+.brand .mark svg{width:20px;height:20px}
+.search{flex:1;display:flex;align-items:center;gap:8px;max-inline-size:720px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:0 6px 0 10px;block-size:38px}
+.search:focus-within{border-color:var(--teal-2);background:var(--surface)}
+.search>svg{color:var(--ink-3)}
+.search input{flex:1 1 auto;inline-size:0;border:0;background:none;outline:none;min-inline-size:0;block-size:100%}
+.search .kbd{font-size:11px;color:var(--ink-3);border:1px solid var(--line);border-radius:5px;padding:0 5px}
+.top-actions{display:flex;gap:8px;margin-inline-start:auto}
+
+nav.side{grid-area:nav;display:flex;flex-direction:column;gap:2px;padding:14px 10px;background:var(--surface);border-inline-end:1px solid var(--line);overflow:auto}
+.nav-b{display:flex;align-items:center;gap:10px;inline-size:100%;padding:9px 12px;border:0;border-radius:8px;background:none;color:var(--ink-2);text-align:start;font-weight:500}
+.nav-b:hover{background:var(--surface-2);color:var(--ink)}
+.nav-b.on{background:var(--teal-soft);color:var(--teal);font-weight:600}
+.nav-b .cnt{margin-inline-start:auto;font-size:12px;color:var(--ink-3);font-weight:400}
+.side-sep{block-size:1px;background:var(--line-2);margin:12px 6px}
+.side-h{font-size:12px;color:var(--ink-3);padding:0 12px 4px;font-weight:500}
+.side-fav{display:flex;flex-direction:column;gap:1px}
+.side-fav button{display:flex;align-items:center;gap:8px;border:0;background:none;padding:5px 10px;border-radius:7px;text-align:start;color:var(--ink-2);font-size:13px}
+.side-fav button:hover{background:var(--surface-2);color:var(--ink)}
+.side-fav button.on{color:var(--teal);font-weight:600}
+.side-fav .av{inline-size:22px;block-size:22px;font-size:11px}
+.side-fav .t{margin-inline-start:auto;font-size:11px;color:var(--ink-3)}
+.side-foot{margin-top:auto;padding:12px;font-size:12px;color:var(--ink-3);line-height:1.6}
+.side-foot b{color:var(--ink-2);font-weight:600}
+
+main{grid-area:main;display:flex;flex-direction:column;min-block-size:0;min-inline-size:0}
+#view{flex:1;overflow:auto;min-block-size:0;position:relative}
+aside#aside{grid-area:aside;background:var(--surface);border-inline-start:1px solid var(--line);overflow:auto;min-block-size:0}
+#app:not(.has-aside) aside#aside{display:none}
+
+/* ---------- buttons & inputs ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;block-size:36px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:500;white-space:nowrap}
+.btn:hover{background:var(--surface-2);border-color:var(--ink-3)}
+.btn.primary{background:var(--teal);border-color:var(--teal);color:var(--on-teal)}
+.btn.primary:hover{background:var(--teal-2);border-color:var(--teal-2)}
+.btn.ai{border-color:color-mix(in srgb,var(--brass) 45%,var(--line));color:var(--brass)}
+.btn.ai:hover{background:var(--brass-soft)}
+.btn.sm{block-size:30px;padding:0 10px;font-size:13px}
+.btn.lg{block-size:46px;padding:0 22px;font-size:16px;border-radius:10px}
+.btn.danger{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 40%,var(--line))}
+.btn.danger:hover{background:var(--danger-soft)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.link{border:0;background:none;color:var(--teal);padding:0 6px}
+.btn.link:hover{text-decoration:underline;background:none}
+.ib{display:inline-grid;place-items:center;inline-size:34px;block-size:34px;border-radius:8px;border:0;background:none;color:var(--ink-2);flex:none}
+.ib:hover{background:var(--surface-2);color:var(--ink)}
+.ib.sm{inline-size:28px;block-size:28px}
+.ib.sm svg.i{width:16px;height:16px}
+.ib.star.on{color:var(--brass-2)}
+.ib.star.on svg{fill:currentColor}
+.inp,select.inp{block-size:34px;border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:0 10px;min-inline-size:0}
+select.inp{padding-inline-end:6px}
+.inp:focus{outline:none;border-color:var(--teal-2)}
+textarea.inp{block-size:auto;padding:8px 10px;resize:vertical;line-height:1.55;inline-size:100%}
+.spin{display:inline-block;inline-size:14px;block-size:14px;border:2px solid currentColor;border-inline-end-color:transparent;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-2px;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- filter bar ---------- */
+.fbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:12px 20px 8px;background:var(--bg)}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:2px;gap:2px;max-inline-size:100%;overflow-x:auto;scrollbar-width:none}
+.seg button{border:0;background:none;border-radius:7px;padding:4px 10px;color:var(--ink-2);font-size:13px;white-space:nowrap}
+.seg button:hover{color:var(--ink);background:var(--surface-2)}
+.seg button.on{background:var(--ink);color:var(--surface);font-weight:500}
+.range{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-2)}
+.range input{block-size:32px}
+.fbar select.inp,.fbar .inp{block-size:32px;font-size:13px}
+.fbar .contact-in{inline-size:170px}
+.wd{display:inline-flex;gap:2px}
+.wd button{inline-size:28px;block-size:28px;border-radius:7px;border:1px solid var(--line);background:var(--surface);font-size:12px;color:var(--ink-2)}
+.wd button.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.more-b{position:relative}
+.more-b .dot{position:absolute;top:-4px;inset-inline-end:-4px;min-inline-size:16px;block-size:16px;border-radius:8px;background:var(--brass-2);color:#fff;font-size:10px;display:grid;place-items:center;padding:0 4px}
+.fbar2{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:0 20px 8px}
+.fbar2 label{font-size:12px;color:var(--ink-3)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 20px 6px}
+.chip{display:inline-flex;align-items:center;gap:6px;block-size:28px;padding:0 6px 0 10px;border-radius:999px;background:var(--teal-soft);color:var(--teal);font-size:13px;font-weight:500}
+.chip button{border:0;background:none;color:inherit;display:grid;place-items:center;inline-size:20px;block-size:20px;border-radius:50%;padding:0}
+.chip button:hover{background:color-mix(in srgb,var(--teal) 15%,transparent)}
+.chip svg.i{width:13px;height:13px}
+.chip.ai{background:var(--brass-soft);color:var(--brass)}
+.resbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:4px 20px 10px;border-bottom:1px solid var(--line);font-size:13px;color:var(--ink-2)}
+.resbar b{color:var(--ink);font-weight:600}
+.resbar .grow{flex:1}
+.banner{margin:10px 20px 0;padding:10px 14px;border-radius:10px;background:var(--brass-soft);color:var(--ink);display:flex;align-items:center;gap:12px;font-size:13px}
+.banner .grow{flex:1}
+
+/* ---------- list ---------- */
+.list{padding:0 12px 24px}
+.day-h{position:sticky;top:0;z-index:2;display:flex;align-items:baseline;gap:10px;padding:16px 10px 8px;background:var(--bg);border-bottom:1px solid var(--line-2)}
+.day-n{font-weight:600;font-size:15px}
+.day-t{margin-inline-start:auto;font-weight:600;color:var(--teal);font-size:14px}
+.day-c{font-size:12px;color:var(--ink-3);min-inline-size:64px;text-align:end}
+.badge{font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--brass-soft);color:var(--brass)}
+.row{display:grid;grid-template-columns:62px 34px minmax(120px,1fr) minmax(80px,200px) 62px 46px 30px 34px;align-items:center;gap:10px;padding:6px 10px;border-radius:9px;cursor:pointer;border:1px solid transparent}
+.row.sd{grid-template-columns:104px 34px minmax(120px,1fr) minmax(80px,200px) 62px 46px 30px 34px}
+.row:hover{background:var(--surface)}
+.row.sel{background:var(--surface);border-color:var(--teal-2)}
+.row.playing .r-who b{color:var(--teal)}
+.r-time{color:var(--ink-2);font-size:13px}
+.av{display:grid;place-items:center;inline-size:32px;block-size:32px;border-radius:50%;background:hsl(var(--hue) var(--av-s) var(--av-l));color:hsl(var(--hue) 45% var(--av-ink-l));font-weight:600;font-size:14px;flex:none}
+.av svg.i{width:15px;height:15px}
+.av.lg{inline-size:48px;block-size:48px;font-size:20px}
+.r-who{display:flex;flex-direction:column;min-inline-size:0;line-height:1.3}
+.r-who b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r-who small{color:var(--ink-3);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r-who small:empty{display:none}
+.r-tape{block-size:6px;border-radius:3px;background:var(--line-2);overflow:hidden;display:flex}
+.r-tape i{display:block;block-size:100%;background:var(--teal);border-radius:3px;opacity:.8}
+.row.playing .r-tape i{background:var(--brass-2);opacity:1}
+.r-dur{text-align:end;font-size:13px;color:var(--ink)}
+.r-flags{display:flex;gap:3px;justify-content:flex-end;align-items:center;color:var(--brass)}
+.fl{font-style:normal;font-size:10px;font-weight:700;inline-size:18px;block-size:18px;border-radius:5px;display:grid;place-items:center;background:var(--surface-3);color:var(--ink-2)}
+.fl.sm{background:var(--brass-soft);color:var(--brass)}
+.row .ib{inline-size:30px;block-size:30px}
+.row .ib.playb{color:var(--teal)}
+.row .ib.playb:hover{background:var(--teal-soft)}
+.row .ib.star:not(.on){opacity:0}
+.row:hover .ib.star,.row .ib.star:focus-visible{opacity:1}
+.sentinel{block-size:40px}
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:70px 24px;color:var(--ink-2)}
+.empty h2{margin:0;color:var(--ink);font-size:20px}
+.empty p{margin:0;max-inline-size:52ch}
+
+.welcome{max-inline-size:640px;margin:8vh auto 0;padding:24px;text-align:center}
+.welcome .reel{inline-size:120px;block-size:64px;color:var(--teal);margin-bottom:14px}
+.welcome h1{font-size:34px;line-height:1.15;margin:0 0 12px;letter-spacing:-.02em}
+.welcome p{color:var(--ink-2);font-size:16px;margin:0 auto 22px;max-inline-size:50ch}
+.welcome .small{font-size:13px;color:var(--ink-3);margin-top:16px}
+.drop-hint{position:fixed;inset:0;z-index:80;background:color-mix(in srgb,var(--teal) 22%,transparent);display:grid;place-items:center;pointer-events:none}
+.drop-hint div{background:var(--surface);padding:24px 34px;border-radius:14px;font-size:18px;font-weight:600;box-shadow:var(--shadow);border:2px dashed var(--teal)}
+
+/* ---------- calendar ---------- */
+.cal{padding:18px 22px 30px;display:flex;flex-direction:column;gap:22px}
+.ymap{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px 12px;min-inline-size:0}
+.ym-scroll{overflow-x:auto;padding:2px 2px 6px}
+.ymap-h{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
+.ymap-h h3{margin:0;font-size:14px;font-weight:600}
+.ymap-h span{font-size:12px;color:var(--ink-3)}
+.ym{display:grid;grid-auto-flow:column;grid-template-rows:16px repeat(7,13px);gap:3px;inline-size:max-content}
+.ym .ml{font-size:11px;color:var(--ink-3);white-space:nowrap;grid-row:1}
+.ym .c{inline-size:13px;block-size:13px;border-radius:3px;background:var(--heat-0);border:0;padding:0}
+.ym .c.x{background:transparent}
+.ym .c.on{outline:2px solid var(--brass-2);outline-offset:1px}
+.ym .c:hover{outline:2px solid var(--ink-3);outline-offset:1px}
+.legend{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink-3);margin-top:10px;flex-wrap:wrap}
+.legend i{inline-size:12px;block-size:12px;border-radius:3px;display:inline-block}
+.h0{background:var(--heat-0)!important}.h1{background:var(--heat-1)!important}.h2{background:var(--heat-2)!important}.h3{background:var(--heat-3)!important}.h4{background:var(--heat-4)!important}.h5{background:var(--heat-5)!important}
+.cal-main{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(300px,1fr);gap:22px;align-items:start}
+.mon{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.mon-h{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.mon-h h2{margin:0;font-size:20px;font-weight:600;letter-spacing:-.01em}
+.mon-h .tot{margin-inline-start:auto;text-align:end;font-size:12px;color:var(--ink-3);line-height:1.3}
+.mon-h .tot b{display:block;font-size:16px;color:var(--teal);font-weight:600}
+.mg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.mg .wdh{font-size:12px;color:var(--ink-3);text-align:center;padding-bottom:2px}
+.dc{position:relative;aspect-ratio:1/0.86;border-radius:8px;border:1px solid transparent;background:var(--heat-0);display:flex;flex-direction:column;justify-content:space-between;padding:6px 7px;text-align:start;min-inline-size:0;overflow:hidden}
+.dc.out{visibility:hidden}
+.dc .dn{font-size:12px;font-weight:600;color:var(--ink-2)}
+.dc .dm{font-size:13px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dc.h3,.dc.h4,.dc.h5{color:#fff}.dc.h3 .dn,.dc.h4 .dn,.dc.h5 .dn{color:rgba(255,255,255,.85)}
+:root[data-theme="dark"] .dc.h4,:root[data-theme="dark"] .dc.h5{color:#04201B}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dc.h4,:root:not([data-theme="light"]) .dc.h5{color:#04201B}}
+:root[data-theme="dark"] .dc.h4 .dn,:root[data-theme="dark"] .dc.h5 .dn{color:rgba(4,32,27,.8)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dc.h4 .dn,:root:not([data-theme="light"]) .dc.h5 .dn{color:rgba(4,32,27,.8)}}
+.dc:hover{border-color:var(--ink-3)}
+.dc.today{border-color:var(--brass-2)}
+.dc.on{border:2px solid var(--ink);}
+.dayp{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;min-block-size:200px}
+.dayp-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.dayp-h h2{margin:0;font-size:18px;font-weight:600}
+.dayp .big{font-size:36px;font-weight:600;color:var(--teal);letter-spacing:-.02em;line-height:1.1;margin:10px 0 2px;font-variant-numeric:tabular-nums}
+.dayp .sub{color:var(--ink-3);font-size:13px;margin-bottom:14px}
+.tl{margin:6px 0 14px}
+.tl-track{position:relative;block-size:30px;background:var(--surface-2);border-radius:6px;border:1px solid var(--line-2)}
+.tl-b{position:absolute;top:4px;bottom:4px;border:0;border-radius:3px;background:var(--teal);padding:0;min-inline-size:3px;opacity:.85}
+.tl-b:hover{background:var(--brass-2);opacity:1}
+.tl-ax{position:relative;block-size:16px;font-size:10px;color:var(--ink-3)}
+.tl-ax span{position:absolute;transform:translateX(50%)}
+.dayp .row{grid-template-columns:44px 28px minmax(0,1fr) 50px 30px;gap:8px;padding:5px 4px}
+.dayp .row .r-tape,.dayp .row .r-flags,.dayp .row .ib.star{display:none}
+.dayp .row .av{inline-size:28px;block-size:28px;font-size:12px}
+
+/* ---------- people ---------- */
+.ppl{padding:16px 20px 30px}
+.ppl-h{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.ppl-h .inp{inline-size:240px}
+.ptable{inline-size:100%;border-collapse:separate;border-spacing:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.ptable th{font-size:12px;font-weight:500;color:var(--ink-3);text-align:start;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--surface-2);white-space:nowrap}
+.ptable th button{border:0;background:none;padding:0;color:inherit;font:inherit}
+.ptable th button.on{color:var(--teal);font-weight:600}
+.ptable td{padding:8px 12px;border-bottom:1px solid var(--line-2);vertical-align:middle}
+.ptable tr:last-child td{border-bottom:0}
+.ptable tbody tr{cursor:pointer}
+.ptable tbody tr:hover td{background:var(--surface-2)}
+.pname{display:flex;align-items:center;gap:10px;min-inline-size:0}
+.pname b{font-weight:500}
+.pname small{display:block;color:var(--ink-3);font-size:12px}
+.pbar{display:flex;align-items:center;gap:8px;min-inline-size:150px}
+.pbar .r-tape{flex:1}
+.strip{display:flex;gap:2px}
+.strip i{inline-size:9px;block-size:16px;border-radius:2px;background:var(--heat-0)}
+
+/* ---------- stats ---------- */
+.stats{padding:18px 22px 34px;display:flex;flex-direction:column;gap:18px}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line-2);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+@media (min-width:1500px){.kpis{grid-template-columns:repeat(6,minmax(0,1fr))}}
+.kpi{padding:16px 18px;background:var(--surface)}
+.kpi .v{font-size:28px;font-weight:600;letter-spacing:-.02em;line-height:1.15;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:13px;color:var(--ink-2)}
+.kpi .s{font-size:12px;color:var(--ink-3);margin-top:2px}
+.kpi button.s{border:0;background:none;padding:0;color:var(--teal);text-align:start}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:18px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.panel h3{margin:0 0 2px;font-size:15px;font-weight:600}
+.panel .ps{font-size:12px;color:var(--ink-3);margin-bottom:14px}
+.panel.span2{grid-column:1/-1}
+.bc{display:flex;align-items:flex-end;gap:2px;block-size:170px;padding-top:16px;border-bottom:1px solid var(--line)}
+.bc-col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;block-size:100%;min-inline-size:0;position:relative;cursor:default}
+.bc-bar{inline-size:min(100%,34px);background:var(--teal);border-radius:4px 4px 0 0;min-block-size:1px;opacity:.88}
+.bc-col:hover .bc-bar{opacity:1;background:var(--teal-2)}
+.bc-v{position:absolute;font-size:11px;color:var(--ink-2);white-space:nowrap;transform:translateY(-100%);padding-bottom:2px}
+.bc-x{display:flex;gap:2px;font-size:11px;color:var(--ink-3);margin-top:5px}
+.bc-x span{flex:1;text-align:center;white-space:nowrap;overflow:hidden;min-inline-size:0}
+.hb{display:flex;flex-direction:column;gap:7px}
+.hb-r{display:grid;grid-template-columns:minmax(90px,150px) minmax(0,1fr) 80px;gap:10px;align-items:center;font-size:13px;cursor:pointer;border-radius:6px;padding:2px 4px}
+.hb-r:hover{background:var(--surface-2)}
+.hb-r .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb-r .b{block-size:12px;border-radius:0 4px 4px 0;background:var(--teal);opacity:.88}
+.hb-r .v{text-align:end;color:var(--ink-2);font-variant-numeric:tabular-nums}
+
+/* ---------- aside ---------- */
+.as{display:flex;flex-direction:column}
+.as-head{display:flex;align-items:center;gap:12px;padding:16px 16px 12px;position:sticky;top:0;background:var(--surface);z-index:3;border-bottom:1px solid var(--line-2)}
+.as-title{flex:1;min-inline-size:0}
+.as-title h2{margin:0;font-size:18px;font-weight:600;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.as-sub{font-size:12px;color:var(--ink-3)}
+.as-meta{display:grid;grid-template-columns:1.6fr .7fr .7fr;gap:0;margin:14px 16px 0;border:1px solid var(--line-2);border-radius:10px;overflow:hidden}
+.as-meta div{padding:8px 12px;border-inline-start:1px solid var(--line-2)}
+.as-meta div:first-child{border-inline-start:0}
+.as-meta span{display:block;font-size:11px;color:var(--ink-3)}
+.as-meta b{font-weight:500;font-size:13px}
+.as-actions{display:flex;flex-wrap:wrap;gap:6px;padding:12px 16px}
+.as-sec{padding:14px 16px;border-top:1px solid var(--line-2)}
+.as-sec h3{margin:0;font-size:14px;font-weight:600}
+.sec-h{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.sec-h .grow{flex:1}
+.sum-t{font-size:16px;font-weight:600;margin:2px 0 6px;line-height:1.35}
+.sum-p{margin:0 0 10px;color:var(--ink);line-height:1.65}
+.sum-l{margin:0 0 10px;padding-inline-start:18px;line-height:1.6}
+.sum-l li{margin-bottom:3px}
+.sum-k{font-size:12px;color:var(--ink-3);margin:10px 0 4px;font-weight:500}
+.tags{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.tag{display:inline-flex;align-items:center;gap:3px;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--surface-3);color:var(--ink-2)}
+.tag.ai{background:var(--brass-soft);color:var(--brass)}
+.tag button{border:0;background:none;padding:0;color:inherit;display:grid;place-items:center}
+.tag svg.i{width:11px;height:11px}
+.tag-in{inline-size:110px;block-size:26px!important;font-size:12px;border-radius:999px!important}
+.senti{font-size:12px;padding:2px 8px;border-radius:999px;background:var(--surface-3)}
+.ai-empty{background:var(--surface-2);border:1px dashed var(--line);border-radius:10px;padding:14px;color:var(--ink-2);font-size:13px;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.ai-err{color:var(--danger);font-size:13px;background:var(--danger-soft);border-radius:8px;padding:8px 10px;margin-top:8px;white-space:pre-wrap;word-break:break-word}
+.tr-list{display:flex;flex-direction:column;gap:2px;max-block-size:none}
+.seg-r{display:grid;grid-template-columns:44px minmax(0,1fr);gap:8px;padding:5px 6px;border-radius:7px;line-height:1.6}
+.seg-r.on{background:var(--teal-soft)}
+.seg-r .ts{border:0;background:none;padding:0;color:var(--teal);font-size:12px;font-variant-numeric:tabular-nums;text-align:start;align-self:start;margin-top:2px}
+.seg-r .ts:disabled{color:var(--ink-3);cursor:default}
+.seg-r .sp{font-size:11px;font-weight:600;margin-inline-end:6px;padding:0 6px;border-radius:4px;background:var(--surface-3);color:var(--ink-2)}
+.seg-r .sp.s1{background:var(--teal-soft);color:var(--teal)}
+.seg-r .sp.s2{background:var(--brass-soft);color:var(--brass)}
+.tr-meta{font-size:11px;color:var(--ink-3);margin-top:8px}
+.as-file{padding:12px 16px 20px;font-size:12px;color:var(--ink-3);border-top:1px solid var(--line-2);word-break:break-all;line-height:1.7}
+.ask-row{display:flex;gap:6px}
+.ask-row .inp{flex:1}
+.answer{margin-top:10px;line-height:1.7;font-size:14px}
+.answer p{margin:0 0 8px}
+.answer ul{margin:0 0 8px;padding-inline-start:18px}
+.mini-rows .row{grid-template-columns:118px minmax(0,1fr) 56px 30px;padding:5px 6px}
+.mini-rows .r-time,.row.sd .r-time{white-space:nowrap}
+.mini-rows .row .av,.mini-rows .row .r-tape,.mini-rows .row .r-flags,.mini-rows .row .ib.star{display:none}
+.cstats{display:grid;grid-template-columns:repeat(2,1fr);gap:0;margin:14px 16px 0;border:1px solid var(--line-2);border-radius:10px;overflow:hidden}
+.cstats div{padding:10px 12px;border-bottom:1px solid var(--line-2);border-inline-start:1px solid var(--line-2)}
+.cstats div:nth-child(odd){border-inline-start:0}
+.cstats span{display:block;font-size:11px;color:var(--ink-3)}
+.cstats b{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.cmon{display:flex;align-items:flex-end;gap:3px;block-size:60px;margin-top:8px}
+.cmon i{flex:1;background:var(--teal);border-radius:3px 3px 0 0;min-block-size:1px;opacity:.85}
+.cmon-x{display:flex;gap:3px;font-size:10px;color:var(--ink-3)}
+.cmon-x span{flex:1;text-align:center;overflow:hidden;white-space:nowrap}
+
+/* ---------- player ---------- */
+footer#player{grid-area:player;display:grid;grid-template-columns:minmax(150px,240px) auto minmax(0,1fr) auto;align-items:center;gap:18px;padding:10px 18px;background:var(--surface);border-top:1px solid var(--line);min-block-size:72px}
+footer#player.idle .p-ctrls,footer#player.idle .p-wave,footer#player.idle .p-extra{opacity:.45;pointer-events:none}
+.p-info{display:flex;align-items:center;gap:10px;min-inline-size:0;border:0;background:none;padding:0;text-align:start}
+.p-info .t{min-inline-size:0;line-height:1.3}
+.p-info b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p-info small{color:var(--ink-3);font-size:12px;white-space:nowrap}
+.p-ctrls{display:flex;align-items:center;gap:4px;direction:ltr}
+.p-play{inline-size:44px;block-size:44px;border-radius:50%;border:0;background:var(--teal);color:var(--on-teal);display:grid;place-items:center}
+.p-play:hover{background:var(--teal-2)}
+.p-play svg.i{width:20px;height:20px}
+.p-wave{display:flex;align-items:center;gap:10px;direction:ltr;min-inline-size:0}
+.p-wave canvas{flex:1;block-size:46px;min-inline-size:0;cursor:pointer;display:block}
+.p-wave .tnum{font-size:12px;color:var(--ink-2);min-inline-size:44px;text-align:center}
+.p-extra{display:flex;align-items:center;gap:6px}
+.speed{min-inline-size:48px;block-size:30px;border-radius:7px;border:1px solid var(--line);background:var(--surface);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.tgl{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2);cursor:pointer;user-select:none}
+.tgl input{accent-color:var(--teal)}
+
+/* ---------- modal / toast / tip / jobs ---------- */
+.mback{position:fixed;inset:0;z-index:60;background:rgba(8,18,16,.42);display:grid;place-items:center;padding:20px}
+.modal{background:var(--surface);border-radius:14px;box-shadow:var(--shadow);inline-size:min(560px,100%);max-block-size:calc(100vh - 40px);display:flex;flex-direction:column;border:1px solid var(--line)}
+.modal.wide{inline-size:min(820px,100%)}
+.m-head{display:flex;align-items:center;gap:10px;padding:16px 18px 10px}
+.m-head h2{margin:0;font-size:18px;font-weight:600;flex:1}
+.m-body{padding:4px 18px 16px;overflow:auto;line-height:1.6}
+.m-foot{display:flex;gap:8px;justify-content:flex-start;padding:12px 18px 16px;border-top:1px solid var(--line-2)}
+.m-foot:empty{display:none}
+.m-foot .grow{flex:1}
+.fld{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.fld>label{font-size:13px;font-weight:500}
+.fld .hint{font-size:12px;color:var(--ink-3)}
+.fld-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.set-sec{border:1px solid var(--line-2);border-radius:12px;padding:14px 14px 2px;margin-bottom:14px}
+.set-sec h3{margin:0 0 12px;font-size:15px}
+.keyrow{display:grid;grid-template-columns:130px minmax(0,1fr) auto;gap:8px;align-items:center;margin-bottom:10px}
+.keyrow .lbl{font-size:13px;font-weight:500}
+.keyrow .lbl a{display:block;font-size:11px;font-weight:400;color:var(--teal)}
+.keyrow .st{font-size:12px;grid-column:2/-1;margin-top:-6px}
+.st.ok{color:var(--teal)}.st.err{color:var(--danger)}
+.folders{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.folder{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line-2);border-radius:10px}
+.folder .fi{color:var(--teal)}
+.folder b{font-weight:600}
+.folder small{display:block;color:var(--ink-3);font-size:12px}
+.folder .acts{display:flex;gap:4px}
+.prog{block-size:6px;background:var(--surface-3);border-radius:3px;overflow:hidden;margin:10px 0 6px}
+.prog i{display:block;block-size:100%;background:var(--teal);inline-size:0;transition:inline-size .2s}
+.sync-res{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:12px}
+.sync-res div{background:var(--surface-2);border-radius:10px;padding:10px 12px}
+.sync-res b{display:block;font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+.sync-res span{font-size:12px;color:var(--ink-2)}
+.sync-res .main b{color:var(--teal)}
+.note{font-size:12px;color:var(--ink-3)}
+#toasts{position:fixed;inset-block-end:92px;inset-inline-start:50%;transform:translateX(50%);z-index:90;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.toast{background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:10px;box-shadow:var(--shadow);font-size:13px;max-inline-size:520px;transition:opacity .3s,transform .3s;pointer-events:auto}
+.toast.err{background:var(--danger);color:#fff}
+.toast.out{opacity:0;transform:translateY(8px)}
+#tip{position:fixed;z-index:95;pointer-events:none;background:var(--ink);color:var(--surface);font-size:12px;padding:6px 9px;border-radius:7px;white-space:pre-line;max-inline-size:280px;line-height:1.45;box-shadow:var(--shadow)}
+#jobs{position:fixed;inset-block-end:90px;inset-inline-start:18px;z-index:50;inline-size:330px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:12px 14px}
+#jobs .j-h{display:flex;align-items:center;gap:8px;font-size:13px}
+#jobs .j-h b{font-weight:600}
+#jobs .j-t{font-size:12px;color:var(--ink-2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#jobs .j-e{font-size:12px;color:var(--danger);margin-top:4px}
+
+@media (max-width:1100px){
+  #app.has-aside{grid-template-columns:0 minmax(0,1fr) minmax(340px,420px)}
+  #app.has-aside nav.side{display:none}
+  .cal-main{grid-template-columns:1fr}
+}
+@media (max-width:820px){
+  #app,#app.has-aside{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr) auto;grid-template-areas:"top" "nav" "main" "player"}
+  header.top{flex-wrap:wrap;padding:10px 16px;gap:10px;min-inline-size:0}
+  .search .kbd,.search .lbl{display:none}
+  .fbar .contact-in{inline-size:140px}
+  .brand{inline-size:auto}
+  .search{order:3;flex-basis:100%}
+  nav.side{flex-direction:row;padding:6px 10px;border-inline-end:0;border-bottom:1px solid var(--line);overflow-x:auto}
+  nav.side .nav-b{inline-size:auto;flex:none}
+  nav.side .side-sep,nav.side .side-h,nav.side .side-fav,nav.side .side-foot,.nav-b .cnt{display:none}
+  #app.has-aside nav.side{display:flex}
+  aside#aside{position:fixed;inset:0;z-index:40;border:0}
+  .row,.row.sd{grid-template-columns:auto 30px minmax(0,1fr) 54px 30px;padding:6px 4px}
+  .row .r-tape,.row .r-flags,.row .ib.star{display:none}
+  .fbar,.resbar,.chips,.fbar2{padding-inline:16px}
+  footer#player{grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;padding:8px 16px}
+  .p-wave{grid-column:1/-1;order:3}
+  .p-extra{display:none}
+  .cal,.stats,.ppl{padding:14px 16px}
+  .ptable .hide-m{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <div class="brand"><span class="mark"><svg class="i" viewBox="0 0 24 24"><circle cx="6.5" cy="12" r="3.5"/><circle cx="17.5" cy="12" r="3.5"/><path d="M6.5 15.5h11"/></svg></span><span>ארכיון שיחות</span></div>
+    <label class="search"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg><input id="q" type="search" placeholder="חיפוש לפי שם, מספר, או מילים מתוך השיחות" autocomplete="off"><span class="kbd">/</span><button class="btn sm ai" id="aiSearchBtn" type="button" title="כתוב מה אתה מחפש במילים שלך, וה-AI יגדיר את הסינון"><svg class="i" viewBox="0 0 24 24"><path d="M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9-1.9 5.1-1.9-5.1-5.1-1.9 5.1-1.9z"/><path d="M19 16.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/></svg><span class="lbl">חיפוש חכם</span></button></label>
+    <div class="top-actions">
+      <button class="btn primary" id="syncBtn" type="button"><svg class="i" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.3-4.6L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.3 4.6L20 16"/><path d="M20 20v-4h-4"/></svg><span>סנכרון</span></button>
+      <button class="ib" id="foldersBtn" type="button" title="תיקיות מסונכרנות"><svg class="i" viewBox="0 0 24 24"><path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/></svg></button>
+      <button class="ib" id="settingsBtn" type="button" title="הגדרות ומפתחות AI"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button>
+    </div>
+  </header>
+
+  <nav class="side" id="nav"></nav>
+
+  <main>
+    <div id="filters"></div>
+    <div id="banner"></div>
+    <section id="view" tabindex="-1"></section>
+  </main>
+
+  <aside id="aside"></aside>
+
+  <footer id="player" class="idle">
+    <button class="p-info" id="pInfo" type="button" title="פתח את פרטי השיחה"><span class="av" id="pAv" style="--hue:170">–</span><span class="t"><b id="pWho">לא נבחרה הקלטה</b><small id="pWhen">לחץ על ▶ ליד שיחה כדי לנגן</small></span></button>
+    <div class="p-ctrls">
+      <button class="ib" id="pPrev" type="button" title="השיחה הקודמת ברשימה"><svg class="i" viewBox="0 0 24 24"><path d="M6 5v14"/><path d="M18 6 9.5 12 18 18z" fill="currentColor"/></svg></button>
+      <button class="ib" id="pBack" type="button" title="10 שניות אחורה"><svg class="i" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4 4v4h4"/><text x="12" y="15.2" font-size="7" text-anchor="middle" fill="currentColor" stroke="none" font-family="Arial">10</text></svg></button>
+      <button class="p-play" id="pPlay" type="button" title="נגן / השהה (רווח)"></button>
+      <button class="ib" id="pFwd" type="button" title="10 שניות קדימה"><svg class="i" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M20 4v4h-4"/><text x="12" y="15.2" font-size="7" text-anchor="middle" fill="currentColor" stroke="none" font-family="Arial">10</text></svg></button>
+      <button class="ib" id="pNext" type="button" title="השיחה הבאה ברשימה"><svg class="i" viewBox="0 0 24 24"><path d="M18 5v14"/><path d="M6 6l8.5 6L6 18z" fill="currentColor"/></svg></button>
+    </div>
+    <div class="p-wave"><span class="tnum" id="pCur">0:00</span><canvas id="pCanvas"></canvas><span class="tnum" id="pDur">0:00</span></div>
+    <div class="p-extra">
+      <button class="speed" id="pSpeed" type="button" dir="ltr" title="מהירות ניגון">1×</button>
+      <label class="tgl" title="בסיום שיחה, לנגן את הבאה ברשימה"><input type="checkbox" id="pAuto">רצף</label>
+    </div>
+    <audio id="audio" preload="auto"></audio>
+  </footer>
+</div>
+<div id="modals"></div>
+<div id="toasts"></div>
+<div id="tip" hidden></div>
+<div id="jobs" hidden></div>
+<input type="file" id="dirInput" webkitdirectory directory multiple hidden>
+<input type="file" id="jsonInput" accept=".json,application/json" hidden>
+<script>
+'use strict';
+/* =====================================================================
+   ארכיון שיחות — קובץ אחד, רץ מקומית בדפדפן (Chrome / Edge)
+   הקבצים נקראים מהמחשב בלבד. פניות AI יוצאות ישירות לספק שבחרת.
+   ===================================================================== */
+
+/* ---------- small helpers ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const h = html => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pad = n => String(n).padStart(2, '0');
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const norm = s => String(s || '').toLowerCase().replace(/[֑-ׇ]/g, '').replace(/[״"׳']/g, '');
+const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+const nf = n => Number(n || 0).toLocaleString('he-IL');
+
+const HE_WD = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
+const HE_WD_S = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'];
+const HE_MON = ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'];
+const HE_MON_S = ['ינו׳', 'פבר׳', 'מרץ', 'אפר׳', 'מאי', 'יוני', 'יולי', 'אוג׳', 'ספט׳', 'אוק׳', 'נוב׳', 'דצמ׳'];
+
+function dkey(ts) { const d = new Date(ts); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
+function dkeyToTs(k) { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d).getTime(); }
+function mkey(ts) { const d = new Date(ts); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`; }
+function fmtDur(s) { s = Math.round(s || 0); const hh = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return hh ? `${hh}:${pad(m)}:${pad(x)}` : `${m}:${pad(x)}`; }
+function fmtTotal(s) {
+  s = Math.round(s || 0);
+  if (s < 60) return `${s} שנ׳`;
+  const hh = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60);
+  if (!hh) return `${m} דק׳`;
+  return m ? `${hh} שע׳ ${m} דק׳` : `${hh} שע׳`;
+}
+function fmtHours(s) { const hh = s / 3600; return hh >= 10 ? nf(Math.round(hh)) : (Math.round(hh * 10) / 10).toLocaleString('he-IL'); }
+function fmtTime(ts) { const d = new Date(ts); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+function fmtDateShort(ts) { const d = new Date(ts); return `${d.getDate()}.${d.getMonth() + 1}.${String(d.getFullYear()).slice(2)}`; }
+function fmtDayLong(ts, withYear) {
+  const d = new Date(ts);
+  const y = withYear || d.getFullYear() !== new Date().getFullYear() ? ` ${d.getFullYear()}` : '';
+  return `יום ${HE_WD[d.getDay()]}, ${d.getDate()} ב${HE_MON[d.getMonth()]}${y}`;
+}
+function relDay(ts) {
+  const k = dkey(ts), now = Date.now();
+  if (k === dkey(now)) return 'היום';
+  if (k === dkey(now - 864e5)) return 'אתמול';
+  const days = Math.round((dkeyToTs(dkey(now)) - dkeyToTs(k)) / 864e5);
+  if (days > 0 && days < 7) return `לפני ${days} ימים`;
+  return fmtDateShort(ts);
+}
+function fmtBytes(b) { if (b < 1024) return b + ' B'; if (b < 1048576) return (b / 1024).toFixed(0) + ' KB'; if (b < 1073741824) return (b / 1048576).toFixed(1) + ' MB'; return (b / 1073741824).toFixed(2) + ' GB'; }
+function toSec(v) {
+  if (v == null || v === '') return null;
+  if (typeof v === 'number') return v;
+  const s = String(v).trim().replace(/[\[\]]/g, '');
+  if (/^\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+  const p = s.split(':').map(parseFloat);
+  if (p.some(isNaN)) return null;
+  return p.reduce((a, x) => a * 60 + x, 0);
+}
+
+/* ---------- icons ---------- */
+const svg = (d, extra = '') => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true"${extra}>${d}</svg>`;
+const I = {
+  play: svg('<path d="M8 5.2v13.6L19 12z" fill="currentColor" stroke="none"/>'),
+  pause: svg('<rect x="6.5" y="5" width="3.6" height="14" rx="1" fill="currentColor" stroke="none"/><rect x="13.9" y="5" width="3.6" height="14" rx="1" fill="currentColor" stroke="none"/>'),
+  star: svg('<path d="m12 3.6 2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.2-4.1 5.8-.8z"/>'),
+  x: svg('<path d="M6 6l12 12M18 6 6 18"/>'),
+  ai: svg('<path d="M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9-1.9 5.1-1.9-5.1-5.1-1.9 5.1-1.9z"/><path d="M19 16.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/>'),
+  list: svg('<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>'),
+  cal: svg('<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>'),
+  people: svg('<circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="16.5" cy="9.5" r="2.6"/><path d="M15.5 14.2c2.6-.3 4.6 1.4 5 4.3"/>'),
+  chart: svg('<path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/>'),
+  dl: svg('<path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/>'),
+  edit: svg('<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/>'),
+  copy: svg('<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>'),
+  phone: svg('<path d="M6.6 3.5h2.6l1.4 4-2 1.4a11 11 0 0 0 6.5 6.5l1.4-2 4 1.4v2.6a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z"/>'),
+  folder: svg('<path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/>'),
+  sync: svg('<path d="M20 11a8 8 0 0 0-14.3-4.6L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.3 4.6L20 16"/><path d="M20 20v-4h-4"/>'),
+  trash: svg('<path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/>'),
+  chevR: svg('<path d="m9 6 6 6-6 6"/>'),
+  chevL: svg('<path d="m15 6-6 6 6 6"/>'),
+  filter: svg('<path d="M4 5h16l-6 7.5V19l-4 1.5v-8z"/>'),
+  send: svg('<path d="M20 4 3.5 11l6.5 2.5L12.5 20z"/><path d="m20 4-10 9.5"/>'),
+  reel: '<svg viewBox="0 0 120 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><circle cx="30" cy="30" r="22"/><circle cx="30" cy="30" r="6"/><circle cx="90" cy="30" r="22"/><circle cx="90" cy="30" r="6"/><path d="M30 52h60"/><path d="M30 8v8M30 44v8M8 30h8M44 30h8M90 8v8M90 44v8M68 30h8M104 30h8" stroke-width="2.4" opacity=".55"/></svg>',
+};
+
+/* ---------- storage (IndexedDB, with in-memory fallback) ---------- */
+const DB = {
+  db: null, mem: false, m: { recs: new Map(), folders: new Map(), kv: new Map() },
+  open() {
+    return new Promise(res => {
+      let r;
+      try { r = indexedDB.open('call-archive', 1); } catch (e) { DB.mem = true; return res(false); }
+      r.onupgradeneeded = () => { const d = r.result; d.createObjectStore('recs', { keyPath: 'id' }); d.createObjectStore('folders', { keyPath: 'id' }); d.createObjectStore('kv'); };
+      r.onsuccess = () => { DB.db = r.result; res(true); };
+      r.onerror = () => { DB.mem = true; res(false); };
+      r.onblocked = () => { DB.mem = true; res(false); };
+    });
+  },
+  tx(store, mode, fn) {
+    return new Promise((res, rej) => {
+      const t = DB.db.transaction(store, mode); const os = t.objectStore(store); let out;
+      const q = fn(os); if (q) q.onsuccess = () => { out = q.result; };
+      t.oncomplete = () => res(out); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error);
+    });
+  },
+  all(store) { return DB.mem ? Promise.resolve([...DB.m[store].values()]) : DB.tx(store, 'readonly', os => os.getAll()); },
+  get(store, key) { return DB.mem ? Promise.resolve(DB.m[store].get(key)) : DB.tx(store, 'readonly', os => os.get(key)); },
+  put(store, val, key) {
+    if (DB.mem) { DB.m[store].set(key ?? val.id, val); return Promise.resolve(); }
+    return DB.tx(store, 'readwrite', os => { key === undefined ? os.put(val) : os.put(val, key); });
+  },
+  putMany(store, vals) {
+    if (DB.mem) { vals.forEach(v => DB.m[store].set(v.id, v)); return Promise.resolve(); }
+    return DB.tx(store, 'readwrite', os => { vals.forEach(v => os.put(v)); });
+  },
+  del(store, key) { if (DB.mem) { DB.m[store].delete(key); return Promise.resolve(); } return DB.tx(store, 'readwrite', os => { os.delete(key); }); },
+  delMany(store, keys) { if (DB.mem) { keys.forEach(k => DB.m[store].delete(k)); return Promise.resolve(); } return DB.tx(store, 'readwrite', os => { keys.forEach(k => os.delete(k)); }); },
+  clear(store) { if (DB.mem) { DB.m[store].clear(); return Promise.resolve(); } return DB.tx(store, 'readwrite', os => { os.clear(); }); },
+};
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { } },
+};
+
+/* ---------- WAV parsing + IMA-ADPCM decoding ---------- */
+function parseWav(buf, fileSize) {
+  if (!buf || buf.byteLength < 12) return null;
+  const dv = new DataView(buf);
+  if (dv.getUint32(0) !== 0x52494646 || dv.getUint32(8) !== 0x57415645) return null;
+  let p = 12, fmt = null, fact = 0, dataOff = 0, dataLen = 0;
+  while (p + 8 <= buf.byteLength) {
+    const id = dv.getUint32(p), len = dv.getUint32(p + 4, true);
+    if (id === 0x666d7420 && p + 24 <= buf.byteLength) {
+      fmt = { tag: dv.getUint16(p + 8, true), ch: dv.getUint16(p + 10, true) || 1, sr: dv.getUint32(p + 12, true), br: dv.getUint32(p + 16, true), align: dv.getUint16(p + 20, true), bits: dv.getUint16(p + 22, true) };
+      if (fmt.tag === 0xFFFE && len >= 40 && p + 34 <= buf.byteLength) fmt.tag = dv.getUint16(p + 32, true);
+    } else if (id === 0x66616374 && p + 12 <= buf.byteLength) fact = dv.getUint32(p + 8, true);
+    else if (id === 0x64617461) {
+      dataOff = p + 8; const avail = (fileSize ?? buf.byteLength) - dataOff;
+      dataLen = (len === 0 || len > avail) ? Math.max(0, avail) : len; break;
+    }
+    p += 8 + len + (len & 1);
+  }
+  if (!fmt || !dataOff || !fmt.sr) return null;
+  let dur = 0;
+  if (fmt.tag === 0x11 && fmt.align > 4 * fmt.ch) {
+    const spb = ((fmt.align - 4 * fmt.ch) * 2 / fmt.ch) + 1;
+    const rem = dataLen % fmt.align;
+    const maxS = Math.floor(dataLen / fmt.align) * spb + (rem > 4 * fmt.ch ? (rem - 4 * fmt.ch) * 2 / fmt.ch + 1 : 0);
+    const ns = fact ? Math.min(fact, maxS) : maxS;
+    dur = ns / fmt.sr; fmt.spb = spb;
+  } else if (fmt.br) dur = dataLen / fmt.br;
+  return { ...fmt, fact, dataOff, dataLen, dur };
+}
+const IMA_STEP = [7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 19, 21, 23, 25, 28, 31, 34, 37, 41, 45, 50, 55, 60, 66, 73, 80, 88, 97, 107, 118, 130, 143, 157, 173, 190, 209, 230, 253, 279, 307, 337, 371, 408, 449, 494, 544, 598, 658, 724, 796, 876, 963, 1060, 1166, 1282, 1411, 1552, 1707, 1878, 2066, 2272, 2499, 2749, 3024, 3327, 3660, 4026, 4428, 4871, 5358, 5894, 6484, 7132, 7845, 8630, 9493, 10442, 11487, 12635, 13899, 15289, 16818, 18500, 20350, 22385, 24623, 27086, 29794, 32767];
+const IMA_IDX = [-1, -1, -1, -1, 2, 4, 6, 8, -1, -1, -1, -1, 2, 4, 6, 8];
+/** Decodes IMA ADPCM (WAV format 0x11) to mono Int16 PCM. Matches ffmpeg's adpcm_ima_wav output. */
+function decodeIma(u8, off, len, ch, align, total) {
+  const spb = ((align - 4 * ch) * 8 / (4 * ch)) + 1;
+  const nBlocks = Math.ceil(len / align);
+  let cap = nBlocks * spb; if (total && total < cap) cap = total;
+  const out = new Int16Array(cap);
+  const tmp = new Int32Array(spb * ch);
+  const pred = new Int32Array(ch), idx = new Int32Array(ch), cnt = new Int32Array(ch);
+  let o = 0;
+  for (let b = 0; b < nBlocks && o < cap; b++) {
+    const bs = off + b * align, be = Math.min(bs + align, off + len);
+    if (be - bs < 4 * ch) break;
+    for (let c = 0; c < ch; c++) {
+      let p = u8[bs + c * 4] | (u8[bs + c * 4 + 1] << 8); if (p & 0x8000) p -= 0x10000;
+      pred[c] = p; const ix = u8[bs + c * 4 + 2]; idx[c] = ix > 88 ? 88 : ix; tmp[c] = p; cnt[c] = 1;
+    }
+    let p = bs + 4 * ch;
+    while (p + 4 * ch <= be) {
+      for (let c = 0; c < ch; c++) {
+        for (let k = 0; k < 4; k++) {
+          const byte = u8[p++];
+          for (let hh = 0; hh < 2; hh++) {
+            const n = hh ? (byte >> 4) : (byte & 15);
+            const step = IMA_STEP[idx[c]];
+            const d = ((2 * (n & 7) + 1) * step) >> 3;
+            let v = pred[c] + ((n & 8) ? -d : d);
+            if (v > 32767) v = 32767; else if (v < -32768) v = -32768;
+            pred[c] = v;
+            const ix = idx[c] + IMA_IDX[n]; idx[c] = ix < 0 ? 0 : ix > 88 ? 88 : ix;
+            tmp[cnt[c] * ch + c] = v; cnt[c]++;
+          }
+        }
+      }
+    }
+    const ns = cnt[0];
+    for (let s = 0; s < ns && o < cap; s++) { let acc = 0; for (let c = 0; c < ch; c++) acc += tmp[s * ch + c]; out[o++] = acc / ch; }
+  }
+  return o < cap ? out.subarray(0, o) : out;
+}
+function pcmWav(pcm, sr) {
+  const n = pcm.length, buf = new ArrayBuffer(44 + n * 2), dv = new DataView(buf);
+  const w = (o, s) => { for (let i = 0; i < s.length; i++) dv.setUint8(o + i, s.charCodeAt(i)); };
+  w(0, 'RIFF'); dv.setUint32(4, 36 + n * 2, true); w(8, 'WAVE'); w(12, 'fmt ');
+  dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 1, true);
+  dv.setUint32(24, sr, true); dv.setUint32(28, sr * 2, true); dv.setUint16(32, 2, true); dv.setUint16(34, 16, true);
+  w(36, 'data'); dv.setUint32(40, n * 2, true); new Int16Array(buf, 44).set(pcm);
+  return new Blob([buf], { type: 'audio/wav' });
+}
+function f32ToI16(f) { const o = new Int16Array(f.length); for (let i = 0; i < f.length; i++) { const v = f[i] < -1 ? -1 : f[i] > 1 ? 1 : f[i]; o[i] = v * 32767; } return o; }
+function resampleI16(src, from, to) {
+  if (from === to) return src;
+  const ratio = from / to, n = Math.floor(src.length / ratio), o = new Int16Array(n);
+  for (let i = 0; i < n; i++) { const x = i * ratio, a = Math.floor(x), f = x - a; o[i] = src[a] * (1 - f) + (src[a + 1] ?? src[a]) * f; }
+  return o;
+}
+function peaksOf(pcm, n) {
+  const out = new Float32Array(n); if (!pcm || !pcm.length) return out;
+  const step = pcm.length / n; let mx = 1;
+  for (let i = 0; i < n; i++) {
+    const a = Math.floor(i * step), b = Math.min(pcm.length, Math.max(a + 1, Math.floor((i + 1) * step)));
+    const inc = b - a > 4000 ? 4 : 1; let m = 0;
+    for (let j = a; j < b; j += inc) { const v = pcm[j] < 0 ? -pcm[j] : pcm[j]; if (v > m) m = v; }
+    out[i] = m; if (m > mx) mx = m;
+  }
+  for (let i = 0; i < n; i++) out[i] = Math.sqrt(out[i] / mx);
+  return out;
+}
+/** find a quiet spot near `at` (samples) to split long audio without cutting words */
+function quietCut(pcm, at, sr) {
+  const win = Math.floor(sr * 0.3), span = Math.floor(sr * 20);
+  let best = at, bestE = Infinity;
+  for (let s = Math.max(0, at - span); s < Math.min(pcm.length - win, at + span); s += Math.floor(win / 2)) {
+    let e = 0; for (let j = s; j < s + win; j += 4) e += Math.abs(pcm[j]);
+    if (e < bestE) { bestE = e; best = s + Math.floor(win / 2); }
+  }
+  return best;
+}
+function blobToB64(blob) { return new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(',')[1] || ''); fr.onerror = () => rej(fr.error); fr.readAsDataURL(blob); }); }
+
+/* ---------- file name parsing ---------- */
+const AUDIO_RE = /\.(wav|mp3|m4a|aac|amr|3gp|ogg|oga|opus|flac|webm|mp4|wma)$/i;
+function validTs(y, mo, d, hh, mi, s) {
+  if (y < 1990 || y > 2100 || mo < 1 || mo > 12 || d < 1 || d > 31 || hh > 23 || mi > 59 || s > 59) return null;
+  return new Date(y, mo - 1, d, hh, mi, s).getTime();
+}
+function parseName(fname, lastModified) {
+  const stem = fname.replace(/\.[^.]+$/, '');
+  let m, contact = null, ts = null;
+  if ((m = stem.match(/^(.*?)[\s_\-]*(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/))) {
+    ts = validTs(+m[2], +m[3], +m[4], +m[5], +m[6], +m[7]); contact = m[1];
+  }
+  if (!ts && (m = stem.match(/(\d{4})[-_.]?(\d{2})[-_.]?(\d{2})[\s_T\-]+(\d{2})[-_.:]?(\d{2})[-_.:]?(\d{2})/))) {
+    ts = validTs(+m[1], +m[2], +m[3], +m[4], +m[5], +m[6]); contact = stem.replace(m[0], ' ');
+  }
+  if (!ts && (m = stem.match(/(?:^|\D)(\d{2})(\d{2})(\d{2})[_\-](\d{2})(\d{2})(\d{2})(?:\D|$)/))) {
+    ts = validTs(2000 + +m[1], +m[2], +m[3], +m[4], +m[5], +m[6]); contact = stem.replace(m[0].replace(/^\D|\D$/g, ''), ' ');
+  }
+  const fromName = !!ts;
+  if (!ts) { ts = lastModified || Date.now(); contact = stem; }
+  const hadRecPrefix = /^(call[ _\-]?recording|recording|rec|voice|הקלטה|הקלטת שיחה|שיחה)[\s_\-]*/i.test(contact);
+  contact = String(contact).replace(/^(call[ _\-]?recording|recording|rec|voice|הקלטה|הקלטת שיחה|שיחה)[\s_\-]*/i, '').replace(/[_]+/g, ' ').replace(/\s{2,}/g, ' ').replace(/^[\s\-@]+|[\s\-@]+$/g, '').trim();
+  const pm = contact.match(/^(.*?)\s*[\(\[]\s*(\+?[\d\s\-]{5,})\s*[\)\]]$/);
+  if (pm) contact = pm[1].trim() || pm[2].trim();
+  if (!contact || (hadRecPrefix && /^\d{1,8}$/.test(contact)) || (!fromName && /^\d{1,8}$/.test(contact))) contact = 'לא ידוע';
+  return { contact, ts, fromName, stamp: fromName ? dkey(ts).replace(/-/g, '') + fmtTime(ts).replace(':', '') + pad(new Date(ts).getSeconds()) : '' };
+}
+function contactKeyOf(raw) {
+  const s = String(raw || '').trim();
+  const compact = s.replace(/[\s()\-\.]/g, '');
+  if (/^\+?\d{3,}$/.test(compact)) {
+    let d = compact.replace(/\D/g, '');
+    if (d.startsWith('972') && d.length >= 11) d = '0' + d.slice(3);
+    else if (compact.startsWith('+') || d.startsWith('00')) d = '+' + d.replace(/^00/, '');
+    return 'tel:' + d;
+  }
+  return 'name:' + s;
+}
+function formatPhone(d) {
+  if (d.startsWith('+')) return '\u200E' + d;
+  if (/^05\d{8}$/.test(d) || /^07\d{8}$/.test(d)) return `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`;
+  if (/^0[2-9]\d{7}$/.test(d)) return `${d.slice(0, 2)}-${d.slice(2, 5)}-${d.slice(5)}`;
+  if (/^1[5-9]00\d{6}$/.test(d)) return `${d.slice(0, 4)}-${d.slice(4, 7)}-${d.slice(7)}`;
+  return d;
+}
+function naturalName(ck) { return ck.startsWith('tel:') ? formatPhone(ck.slice(4)) : ck.slice(5); }
+const HUES = [168, 196, 32, 140, 214, 8, 262, 48, 320, 100, 186, 280];
+function hueOf(s) { let x = 0; for (const c of String(s)) x = (x * 31 + c.codePointAt(0)) >>> 0; return HUES[x % HUES.length]; }
+function initial(who, isTel) { if (isTel) return I.phone; const c = [...String(who).replace(/^(הרב|ר׳|רב|דר׳|ד"ר)\s+/, '').trim()][0] || '?'; return esc(c.toUpperCase()); }
+
+/* =====================================================================
+   state, records, sync
+   ===================================================================== */
+const DEFAULT_SETTINGS = {
+  sttProvider: 'gemini',
+  sttModel: { gemini: 'gemini-3.8-flash', elevenlabs: 'scribe_v2', openai: 'gpt-transcribe', groq: 'whisper-large-v3' },
+  llmProvider: 'gemini',
+  llmModel: { gemini: 'gemini-3.8-flash', anthropic: 'claude-sonnet-5-5', openai: 'gpt-5.4-mini' },
+  hideShort: 0, batchMinSec: 8, concurrency: 2, theme: 'auto', speed: 1, autoNext: false, followTr: true,
+};
+const S = {
+  recs: [], byId: new Map(), byKey: new Map(), folders: new Map(),
+  aliases: {}, settings: structuredClone(DEFAULT_SETTINGS), keys: {},
+  view: 'list', f: null, filtered: [], aside: null,
+  sessionFiles: new Map(), busy: new Map(), errors: new Map(),
+  calMonth: null, calDay: null, peopleQ: '', peopleSort: 'sec', moreOpen: false,
+  contacts: [], tagsAll: [],
+};
+function defaultFilter() { return { q: '', date: 'all', from: '', to: '', contacts: [], dur: 'any', tod: 'any', status: 'any', kind: 'any', tag: '', wd: [], sort: 'new' }; }
+S.f = defaultFilter();
+
+const strip = r => { const { _, ...d } = r; return d; };
+function prep(r) {
+  const ck = contactKeyOf(r.contactRaw);
+  const isTel = ck.startsWith('tel:');
+  const who = S.aliases[ck] || naturalName(ck);
+  const d = new Date(r.ts);
+  r._ = { ck, who, isTel: isTel && !S.aliases[ck], phone: isTel ? formatPhone(ck.slice(4)) : '', dk: dkey(r.ts), mk: mkey(r.ts), hour: d.getHours(), wd: d.getDay(), hue: hueOf(who), blob: null };
+  return r;
+}
+function blobOf(r) {
+  if (r._.blob) return r._.blob;
+  const parts = [r._.who, r.contactRaw, r._.phone.replace(/\D/g, ''), r.note, (r.tags || []).join(' ')];
+  if (r.sum) parts.push(r.sum.title, r.sum.summary, (r.sum.points || []).join(' '), (r.sum.actions || []).join(' '), (r.sum.tags || []).join(' '));
+  if (r.tr) parts.push(r.tr.segs.map(s => s.t).join(' '));
+  return (r._.blob = norm(parts.join(' \n ')));
+}
+function tagsOf(r) { return [...new Set([...(r.tags || []), ...(r.sum?.tags || [])])]; }
+async function saveRec(r) { r._ && (r._.blob = null); await DB.put('recs', strip(r)); }
+const saveRecSoon = (() => { const pend = new Map(); const flush = debounce(() => { const v = [...pend.values()]; pend.clear(); DB.putMany('recs', v.map(strip)); }, 500); return r => { r._ && (r._.blob = null); pend.set(r.id, r); flush(); }; })();
+function saveSettings() { DB.put('kv', S.settings, 'settings'); }
+function saveAliases() { DB.put('kv', S.aliases, 'aliases'); }
+
+function addRecs(list) {
+  for (const r of list) { prep(r); S.recs.push(r); S.byId.set(r.id, r); S.byKey.set(r.key, r); }
+}
+function rebuildIndexes() {
+  S.recs.sort((a, b) => b.ts - a.ts);
+  const m = new Map(), tags = new Map();
+  for (const r of S.recs) {
+    let c = m.get(r._.who); if (!c) { c = { who: r._.who, n: 0, sec: 0, isTel: r._.isTel, cks: new Set() }; m.set(r._.who, c); }
+    c.n++; c.sec += r.dur || 0; c.cks.add(r._.ck);
+    for (const t of tagsOf(r)) tags.set(t, (tags.get(t) || 0) + 1);
+  }
+  S.contacts = [...m.values()].sort((a, b) => b.n - a.n);
+  S.tagsAll = [...tags.entries()].sort((a, b) => b[1] - a[1]).map(x => x[0]);
+}
+function reprepAll() { for (const r of S.recs) prep(r); rebuildIndexes(); }
+
+/* ---------- filtering ---------- */
+function dateRange(f) {
+  const today = dkeyToTs(dkey(Date.now())), day = 864e5;
+  switch (f.date) {
+    case 'today': return [today, today + day];
+    case 'yesterday': return [today - day, today];
+    case '7d': return [today - 6 * day, today + day];
+    case '30d': return [today - 29 * day, today + day];
+    case 'month': { const d = new Date(); return [new Date(d.getFullYear(), d.getMonth(), 1).getTime(), new Date(d.getFullYear(), d.getMonth() + 1, 1).getTime()]; }
+    case 'lastmonth': { const d = new Date(); return [new Date(d.getFullYear(), d.getMonth() - 1, 1).getTime(), new Date(d.getFullYear(), d.getMonth(), 1).getTime()]; }
+    case 'custom': return [f.from ? dkeyToTs(f.from) : 0, f.to ? dkeyToTs(f.to) + day : 0];
+    default: return [0, 0];
+  }
+}
+const DUR_OPTS = { any: ['כל משך', 0, Infinity], gt10: ['מעל 10 שניות', 10, Infinity], gt60: ['מעל דקה', 60, Infinity], gt300: ['מעל 5 דקות', 300, Infinity], gt900: ['מעל 15 דקות', 900, Infinity], lt10: ['קצרות (עד 10 שנ׳)', 0, 10], lt60: ['עד דקה', 0, 60] };
+const TOD_OPTS = { any: ['כל שעות היום', 0, 24], morning: ['בוקר 06–12', 6, 12], noon: ['צהריים 12–17', 12, 17], evening: ['ערב 17–22', 17, 22], night: ['לילה 22–06', 22, 6] };
+const STATUS_OPTS = { any: 'כל ההקלטות', tr: 'עם תמלול', sum: 'עם סיכום', notr: 'בלי תמלול', star: 'מועדפות', note: 'עם הערה' };
+const KIND_OPTS = { any: 'כל אנשי הקשר', named: 'אנשי קשר שמורים', tel: 'מספרים לא שמורים' };
+const SORT_OPTS = { new: 'מהחדש לישן', old: 'מהישן לחדש', long: 'הארוכות קודם', short: 'הקצרות קודם' };
+function filterCount(f) {
+  let n = 0;
+  if (f.tod !== 'any') n++; if (f.kind !== 'any') n++; if (f.tag) n++; if (f.wd.length) n++;
+  return n;
+}
+function isFiltered(f) { const d = defaultFilter(); return JSON.stringify({ ...f, sort: 'new' }) !== JSON.stringify({ ...d, sort: 'new' }); }
+function applyFilter() {
+  const f = S.f, terms = norm(f.q).split(/\s+/).filter(Boolean).map(t => /^[\d\-+]+$/.test(t) ? t.replace(/[\-+]/g, '') : t).filter(Boolean);
+  const [from, to] = dateRange(f);
+  const [, dmin, dmax] = DUR_OPTS[f.dur] || DUR_OPTS.any;
+  const [, th0, th1] = TOD_OPTS[f.tod] || TOD_OPTS.any;
+  const cs = f.contacts.length ? new Set(f.contacts) : null, wd = f.wd.length ? new Set(f.wd) : null;
+  const hide = +S.settings.hideShort || 0;
+  const out = [];
+  for (const r of S.recs) {
+    const d = r._;
+    if (hide && r.dur < hide && !(cs && cs.has(d.who))) continue;
+    if (from && r.ts < from) continue;
+    if (to && r.ts >= to) continue;
+    if (cs && !cs.has(d.who)) continue;
+    if (r.dur < dmin || r.dur >= dmax) continue;
+    if (f.tod !== 'any') { const hr = d.hour; if (th0 < th1 ? (hr < th0 || hr >= th1) : (hr < th0 && hr >= th1)) continue; }
+    if (wd && !wd.has(d.wd)) continue;
+    if (f.kind === 'named' && d.isTel) continue;
+    if (f.kind === 'tel' && !d.isTel) continue;
+    switch (f.status) {
+      case 'tr': if (!r.tr) continue; break;
+      case 'sum': if (!r.sum) continue; break;
+      case 'notr': if (r.tr) continue; break;
+      case 'star': if (!r.star) continue; break;
+      case 'note': if (!r.note) continue; break;
+    }
+    if (f.tag && !tagsOf(r).includes(f.tag)) continue;
+    if (terms.length) { const b = blobOf(r); if (!terms.every(t => b.includes(t))) continue; }
+    out.push(r);
+  }
+  if (f.sort === 'old') out.sort((a, b) => a.ts - b.ts);
+  else if (f.sort === 'long') out.sort((a, b) => b.dur - a.dur);
+  else if (f.sort === 'short') out.sort((a, b) => a.dur - b.dur);
+  S.filtered = out;
+}
+
+/* ---------- folders & sync ---------- */
+const hasFSA = typeof window.showDirectoryPicker === 'function';
+async function folderPerm(f, ask) {
+  if (!f?.handle) return 'none';
+  try {
+    let p = await f.handle.queryPermission({ mode: 'read' });
+    if (p !== 'granted' && ask) p = await f.handle.requestPermission({ mode: 'read' });
+    return p;
+  } catch { return 'denied'; }
+}
+async function walkHandle(dir, path, out, onTick) {
+  for await (const [name, hnd] of dir.entries()) {
+    if (hnd.kind === 'directory') { if (!name.startsWith('.')) await walkHandle(hnd, [...path, name], out, onTick); }
+    else if (AUDIO_RE.test(name)) { out.push({ h: hnd, name, path }); if (out.length % 250 === 0) onTick?.(out.length); }
+  }
+}
+function probeDuration(file) {
+  return new Promise(res => {
+    const a = new Audio(); const url = URL.createObjectURL(file); let done = false;
+    const fin = v => { if (done) return; done = true; URL.revokeObjectURL(url); a.src = ''; res(isFinite(v) && v > 0 ? v : 0); };
+    a.preload = 'metadata'; a.onloadedmetadata = () => fin(a.duration); a.onerror = () => fin(0); setTimeout(() => fin(0), 8000); a.src = url;
+  });
+}
+/**
+ * Ingest a list of {file?|h, name, path} into the archive.
+ * Duplicate detection: same date-time stamp from the file name + same byte size (or same name + size when no stamp).
+ */
+async function ingest(items, folder, onProg) {
+  const st = { found: items.length, added: 0, dup: 0, relinked: 0, renamed: 0, empty: 0, failed: 0 };
+  const newRecs = [], changed = new Map(), probe = [];
+  const CH = 48;
+  for (let i = 0; i < items.length; i += CH) {
+    await Promise.all(items.slice(i, i + CH).map(async it => {
+      try {
+        const file = it.file || await it.h.getFile();
+        if (!file.size) { st.empty++; return; }
+        const p = parseName(file.name, file.lastModified);
+        const key = (p.fromName ? p.stamp : file.name) + '|' + file.size;
+        const ex = S.byKey.get(key);
+        if (ex) {
+          st.dup++;
+          S.sessionFiles.set(ex.id, file);
+          const oldF = S.folders.get(ex.folderId);
+          const samePlace = ex.folderId === folder.id && (ex.path || []).join('/') === it.path.join('/') && ex.name === file.name;
+          if (!samePlace && (folder.handle || !oldF || !oldF.handle)) { ex.folderId = folder.id; ex.path = it.path; ex.name = file.name; changed.set(ex.id, ex); st.relinked++; }
+          if (ex.contactRaw !== p.contact && contactKeyOf(ex.contactRaw).startsWith('tel:') && !contactKeyOf(p.contact).startsWith('tel:') && p.contact !== 'לא ידוע') {
+            ex.contactRaw = p.contact; prep(ex); changed.set(ex.id, ex); st.renamed++;
+          }
+          return;
+        }
+        let dur = 0, fmt = (file.name.match(/\.([^.]+)$/)?.[1] || '').toLowerCase();
+        if (fmt === 'wav') {
+          const w = parseWav(await file.slice(0, 16384).arrayBuffer(), file.size);
+          if (w) { dur = w.dur; fmt = w.tag === 0x11 ? 'ima' : w.tag === 1 ? 'pcm' : 'wav' + w.tag; }
+        }
+        const r = { id: uid(), key, name: file.name, folderId: folder.id, path: it.path, size: file.size, mtime: file.lastModified, contactRaw: p.contact, ts: p.ts, dur, fmt, added: Date.now(), star: false, tags: [], note: '' };
+        if (!dur && fmt !== 'ima' && fmt !== 'pcm') probe.push([r, file]);
+        S.byKey.set(key, r); S.sessionFiles.set(r.id, file);
+        newRecs.push(r); st.added++;
+      } catch (e) { st.failed++; console.warn('ingest failed', it.name, e); }
+    }));
+    onProg?.(Math.min(items.length, i + CH), items.length, st);
+    if (i % (CH * 8) === 0) await sleep(0);
+  }
+  for (const [r, file] of probe) r.dur = await probeDuration(file);
+  if (newRecs.length) { await DB.putMany('recs', newRecs); addRecs(newRecs); }
+  if (changed.size) await DB.putMany('recs', [...changed.values()].map(strip));
+  folder.lastSync = Date.now();
+  folder.count = S.recs.filter(r => r.folderId === folder.id).length;
+  await DB.put('folders', folder);
+  rebuildIndexes();
+  try { navigator.storage?.persist?.(); } catch { }
+  return st;
+}
+async function findFolderForHandle(hnd) {
+  for (const f of S.folders.values()) { try { if (f.handle && await f.handle.isSameEntry(hnd)) return f; } catch { } }
+  return null;
+}
+async function folderFromHandle(hnd) {
+  let f = await findFolderForHandle(hnd);
+  if (!f) { f = { id: uid(), name: hnd.name, handle: hnd, added: Date.now(), lastSync: 0, count: 0 }; S.folders.set(f.id, f); await DB.put('folders', f); }
+  else if (f.handle !== hnd) { f.handle = hnd; await DB.put('folders', f); }
+  return f;
+}
+async function folderForInput(name) {
+  let f = [...S.folders.values()].find(x => !x.handle && x.name === name);
+  if (!f) { f = { id: uid(), name, handle: null, added: Date.now(), lastSync: 0, count: 0 }; S.folders.set(f.id, f); await DB.put('folders', f); }
+  return f;
+}
+
+/* ---------- getting the audio of a record ---------- */
+async function fileFor(r, ask = true) {
+  if (S.sessionFiles.has(r.id)) return S.sessionFiles.get(r.id);
+  const f = S.folders.get(r.folderId);
+  if (!f) throw new UserError('הקובץ לא נמצא בתיקייה מסונכרנת. סנכרן את התיקייה שבה ההקלטה נמצאת.');
+  if (!f.handle) throw new UserError(`כדי לנגן, בחר שוב את התיקייה "${f.name}" (סנכרון). הדפדפן הזה לא זוכר גישה לתיקיות בין פתיחות.`, 'resync');
+  const p = await folderPerm(f, ask);
+  if (p !== 'granted') throw new UserError(`צריך לאשר לאתר גישת קריאה לתיקייה "${f.name}".`, 'perm');
+  try {
+    let d = f.handle; for (const part of r.path || []) d = await d.getDirectoryHandle(part);
+    const file = await (await d.getFileHandle(r.name)).getFile();
+    S.sessionFiles.set(r.id, file); return file;
+  } catch (e) { throw new UserError(`הקובץ "${r.name}" כבר לא נמצא בתיקייה "${f.name}". אולי הוא הועבר או נמחק.`); }
+}
+class UserError extends Error { constructor(m, code) { super(m); this.code = code; this.user = true; } }
+async function decodeRec(r) {
+  const file = await fileFor(r);
+  const buf = await file.arrayBuffer();
+  const w = /\.wav$/i.test(r.name) ? parseWav(buf, file.size) : null;
+  let pcm = null, sr = 8000, blob = file;
+  if (w && w.tag === 0x11) { pcm = decodeIma(new Uint8Array(buf), w.dataOff, w.dataLen, w.ch, w.align, w.fact); sr = w.sr; blob = pcmWav(pcm, sr); }
+  else if (w && w.tag === 1 && w.bits === 16) {
+    let raw = new Int16Array(buf.slice(w.dataOff, w.dataOff + (w.dataLen & ~1)));
+    if (w.ch > 1) { const m = new Int16Array(Math.floor(raw.length / w.ch)); for (let i = 0; i < m.length; i++) { let a = 0; for (let c = 0; c < w.ch; c++) a += raw[i * w.ch + c]; m[i] = a / w.ch; } raw = m; }
+    pcm = raw; sr = w.sr;
+  } else {
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext; const ac = new AC();
+      const ab = await ac.decodeAudioData(buf.slice(0)); ac.close?.();
+      sr = 16000; pcm = resampleI16(f32ToI16(ab.getChannelData(0)), ab.sampleRate, sr);
+    } catch (e) { pcm = null; }
+  }
+  return { file, pcm, sr, blob };
+}
+const AudioCache = {
+  m: new Map(), max: 6,
+  async get(r) {
+    if (this.m.has(r.id)) { const v = this.m.get(r.id); this.m.delete(r.id); this.m.set(r.id, v); return v; }
+    const d = await decodeRec(r);
+    const v = { url: URL.createObjectURL(d.blob), peaks: d.pcm ? peaksOf(d.pcm, 1400) : null, dur: d.pcm ? d.pcm.length / d.sr : r.dur };
+    this.m.set(r.id, v);
+    while (this.m.size > this.max) { const [k, old] = this.m.entries().next().value; if (P.rec?.id === k) { this.m.delete(k); this.m.set(k, old); break; } URL.revokeObjectURL(old.url); this.m.delete(k); }
+    if (v.dur && Math.abs(v.dur - r.dur) > 1) { r.dur = v.dur; saveRecSoon(r); }
+    return v;
+  },
+};
+
+/* =====================================================================
+   AI: transcription + summaries + smart search + questions
+   Every request goes straight from this page to the provider you chose,
+   with your own API key (kept only in this browser).
+   ===================================================================== */
+const KEY_META = {
+  gemini: { label: 'Google Gemini', url: 'https://aistudio.google.com/apikey', hint: 'מפתח אחד מספיק גם לתמלול וגם לסיכום. יש מכסה חינמית.' },
+  elevenlabs: { label: 'ElevenLabs', url: 'https://elevenlabs.io/app/settings/api-keys', hint: 'תמלול מדויק במיוחד בעברית, עם הפרדת דוברים.' },
+  openai: { label: 'OpenAI', url: 'https://platform.openai.com/api-keys', hint: '' },
+  anthropic: { label: 'Claude (Anthropic)', url: 'https://console.anthropic.com/settings/keys', hint: 'לסיכומים ולשאלות.' },
+  groq: { label: 'Groq', url: 'https://console.groq.com/keys', hint: 'Whisper מהיר וזול מאוד.' },
+};
+const STT_PROV = {
+  gemini: { label: 'Google Gemini', key: 'gemini', chunk: 600 },
+  elevenlabs: { label: 'ElevenLabs Scribe', key: 'elevenlabs', chunk: 3 * 3600 },
+  openai: { label: 'OpenAI', key: 'openai', chunk: 600 },
+  groq: { label: 'Groq Whisper', key: 'groq', chunk: 600 },
+};
+const LLM_PROV = {
+  gemini: { label: 'Google Gemini', key: 'gemini' },
+  anthropic: { label: 'Claude (Anthropic)', key: 'anthropic' },
+  openai: { label: 'OpenAI', key: 'openai' },
+};
+const GEM_LEGACY = 'דור ישן, זמין רק למי שהשתמש בו לאחרונה';
+const MODEL_CATALOG = {
+  'stt-gemini': [
+    { id: 'gemini-3.8-flash', note: 'מומלץ: מהיר ומדויק' },
+    { id: 'gemini-4-argon', note: 'החזק ביותר, איטי ויקר יותר' },
+    { id: 'gemini-3.6-flash', note: 'הדור הקודם של Flash' },
+    { id: 'gemini-3.5-transcribe', note: 'מודל ייעודי לתמלול' },
+    { id: 'gemini-3.5-flash-lite', note: 'הזול והמהיר ביותר' },
+    { id: 'gemini-3.1-flash-lite', note: 'זול' },
+    { id: 'gemini-3-flash-preview', note: 'תצוגה מקדימה' },
+    { id: 'gemini-3.1-pro-preview', note: 'Pro, תצוגה מקדימה' },
+    { id: 'gemini-2.5-flash', note: GEM_LEGACY },
+    { id: 'gemini-2.5-pro', note: GEM_LEGACY },
+  ],
+  'llm-gemini': [
+    { id: 'gemini-3.8-flash', note: 'מומלץ: מהיר וזול' },
+    { id: 'gemini-4-argon', note: 'החזק ביותר' },
+    { id: 'gemini-3.6-flash', note: 'הדור הקודם של Flash' },
+    { id: 'gemini-3.5-flash-lite', note: 'הזול והמהיר ביותר' },
+    { id: 'gemini-3.1-flash-lite', note: 'זול' },
+    { id: 'gemini-3-flash-preview', note: 'תצוגה מקדימה' },
+    { id: 'gemini-3.1-pro-preview', note: 'Pro, תצוגה מקדימה' },
+    { id: 'gemini-2.5-flash', note: GEM_LEGACY },
+    { id: 'gemini-2.5-pro', note: GEM_LEGACY },
+  ],
+  'stt-elevenlabs': [
+    { id: 'scribe_v2', note: 'מומלץ: הדיוק הגבוה ביותר, הפרדת דוברים' },
+    { id: 'scribe_v1', note: 'הגרסה הקודמת' },
+  ],
+  'stt-openai': [
+    { id: 'gpt-transcribe', note: 'מומלץ: הדור החדש' },
+    { id: 'gpt-4o-transcribe-diarize', note: 'עם הפרדת דוברים וזמנים. יוצא משימוש בפבר׳ 2027' },
+    { id: 'gpt-4o-transcribe', note: 'יוצא משימוש בפבר׳ 2027' },
+    { id: 'gpt-4o-mini-transcribe', note: 'זול. יוצא משימוש בפבר׳ 2027' },
+    { id: 'whisper-1', note: 'עם זמנים לכל משפט. יוצא משימוש בפבר׳ 2027' },
+  ],
+  'stt-groq': [
+    { id: 'whisper-large-v3', note: 'מדויק יותר' },
+    { id: 'whisper-large-v3-turbo', note: 'מהיר וזול יותר' },
+  ],
+  'llm-anthropic': [
+    { id: 'claude-sonnet-5-5', note: 'מומלץ: איכות ומחיר מאוזנים' },
+    { id: 'claude-haiku-5-5', note: 'מהיר וזול' },
+    { id: 'claude-opus-5-5', note: 'חזק מאוד' },
+    { id: 'claude-fable-5-1', note: 'החזק ביותר, יקר' },
+  ],
+  'llm-openai': [
+    { id: 'gpt-5.4-mini', note: 'מומלץ: מהיר וזול' },
+    { id: 'gpt-5.4-nano', note: 'הזול ביותר' },
+    { id: 'gpt-6.1-sol', note: 'הדור החדש' },
+    { id: 'gpt-6.1-terra', note: 'הדור החדש' },
+    { id: 'gpt-6-sol', note: '' },
+    { id: 'gpt-6-luna', note: '' },
+    { id: 'gpt-6-astra', note: '' },
+    { id: 'gpt-5.6-sol', note: '' },
+    { id: 'gpt-5.6-terra', note: '' },
+    { id: 'gpt-5.6-luna', note: '' },
+    { id: 'gpt-5.5', note: '' },
+    { id: 'gpt-5.4', note: '' },
+    { id: 'chat-latest', note: 'תמיד הגרסה העדכנית של ChatGPT' },
+  ],
+};
+/** sorts a provider's model list into the transcription / text lists this app can use */
+function classifyModels(p, ids) {
+  const out = {};
+  if (p === 'gemini') {
+    const ok = ids.filter(m => /gemini/i.test(m) && !/tts|image|embed|imagen|veo|lyria|banana|robotics|live|aqa|learnlm|translate|native-audio|omni/i.test(m));
+    out['llm-gemini'] = ok.filter(m => !/transcribe/i.test(m)); out['stt-gemini'] = ok;
+  }
+  if (p === 'openai') {
+    out['llm-openai'] = ids.filter(m => /^(gpt-|o\d|chat-latest)/.test(m) && !/audio|realtime|transcribe|tts|image|search|embed|whisper|instruct|moderation|live|codex|cyber/i.test(m));
+    out['stt-openai'] = ids.filter(m => /transcribe|whisper/i.test(m) && !/realtime|live/i.test(m));
+  }
+  if (p === 'groq') out['stt-groq'] = ids.filter(m => /whisper/i.test(m));
+  if (p === 'anthropic') out['llm-anthropic'] = ids.filter(m => /claude/i.test(m));
+  return out;
+}
+
+function needKey(p) {
+  const k = (S.keys[p] || '').trim();
+  if (!k) throw new UserError(`חסר מפתח API של ${KEY_META[p].label}. הוסף אותו בהגדרות.`, 'nokey');
+  return k;
+}
+async function readErr(r, who) {
+  let msg = '';
+  try { const t = await r.text(); try { const j = JSON.parse(t); msg = j.error?.message || j.detail?.message || (typeof j.detail === 'string' ? j.detail : '') || j.message || (typeof j.error === 'string' ? j.error : '') || t; } catch { msg = t; } } catch { }
+  const e = new Error(`${who}: ${String(msg).slice(0, 400) || 'שגיאה'} (${r.status})`);
+  e.status = r.status; e.fatal = r.status === 401 || r.status === 403;
+  if (r.status === 401 || r.status === 403) e.message = `${who}: המפתח נדחה (${r.status}). בדוק את מפתח ה-API בהגדרות.\n${String(msg).slice(0, 200)}`;
+  if (r.status === 404) e.message += '\nייתכן ששם המודל לא קיים. בהגדרות, לחץ "בדיקה" ליד המפתח כדי לראות את המודלים הזמינים.';
+  if (r.status === 429) e.message = `${who}: הגעת למגבלת הקצב או המכסה (429). נסה שוב בעוד כמה דקות.\n${String(msg).slice(0, 200)}`;
+  return e;
+}
+async function api(url, opts, who, signal) {
+  let r;
+  try { r = await fetch(url, { ...opts, signal }); }
+  catch (e) { if (e.name === 'AbortError') throw e; throw new Error(`${who}: הבקשה לא הגיעה לשרת (${e.message}). בדוק את החיבור לאינטרנט. אם החיבור תקין, ייתכן שהספק חוסם פניות ישירות מהדפדפן – נסה ספק אחר בהגדרות.`); }
+  if (!r.ok) throw await readErr(r, who);
+  return r.json();
+}
+function parseJSONLoose(t) {
+  if (t && typeof t === 'object') return t;
+  let s = String(t || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '');
+  try { return JSON.parse(s); } catch { }
+  const a = s.indexOf('{'), b = s.lastIndexOf('}');
+  if (a >= 0 && b > a) { try { return JSON.parse(s.slice(a, b + 1)); } catch { } }
+  const a2 = s.indexOf('['), b2 = s.lastIndexOf(']');
+  if (a2 >= 0 && b2 > a2) { try { return JSON.parse(s.slice(a2, b2 + 1)); } catch { } }
+  throw new Error('התשובה מה-AI לא הייתה בפורמט הצפוי. נסה שוב.');
+}
+
+/* ---------- LLM (text) ---------- */
+async function llm({ system, user, json = false, maxTokens = 4000, signal }) {
+  const p = S.settings.llmProvider, model = S.settings.llmModel[p];
+  if (p === 'gemini') return geminiText(model, [{ text: user }], { system, json, signal });
+  if (p === 'anthropic') {
+    const key = needKey('anthropic');
+    const j = await api('https://api.anthropic.com/v1/messages', {
+      method: 'POST', headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model, max_tokens: maxTokens, system: system + (json ? '\nהחזר JSON תקין בלבד, בלי טקסט נוסף ובלי סימני ```.' : ''), messages: [{ role: 'user', content: user }] }),
+    }, 'Claude', signal);
+    return (j.content || []).filter(c => c.type === 'text').map(c => c.text).join('');
+  }
+  if (p === 'openai') {
+    const key = needKey('openai');
+    const body = { model, messages: [{ role: 'system', content: system }, { role: 'user', content: user }] };
+    if (json) body.response_format = { type: 'json_object' };
+    const j = await api('https://api.openai.com/v1/chat/completions', { method: 'POST', headers: { 'content-type': 'application/json', authorization: 'Bearer ' + key }, body: JSON.stringify(body) }, 'OpenAI', signal);
+    return j.choices?.[0]?.message?.content || '';
+  }
+  throw new Error('ספק AI לא מוכר');
+}
+async function geminiText(model, parts, { system, json, signal } = {}) {
+  const key = needKey('gemini');
+  const body = { contents: [{ role: 'user', parts }], generationConfig: {} };
+  if (json) body.generationConfig.responseMimeType = 'application/json';
+  if (system) body.systemInstruction = { parts: [{ text: system }] };
+  const j = await api(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`,
+    { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }, 'Gemini', signal);
+  const c = j.candidates?.[0];
+  const text = (c?.content?.parts || []).filter(p => !p.thought).map(p => p.text || '').join('');
+  if (!text) throw new Error(`Gemini החזיר תשובה ריקה${c?.finishReason ? ' (' + c.finishReason + ')' : ''}${j.promptFeedback?.blockReason ? ' — ' + j.promptFeedback.blockReason : ''}`);
+  return text;
+}
+
+/* ---------- speech to text ---------- */
+async function sttChunks(r, maxSec) {
+  const { file, pcm, sr } = await decodeRec(r);
+  if (!pcm) {
+    if (file.size < 14e6) return [{ blob: file, offset: 0, mime: file.type || 'audio/mpeg', name: r.name }];
+    throw new UserError('לא הצלחתי לפענח את הקובץ הזה לתמלול.');
+  }
+  const per = Math.floor(maxSec * sr), out = [];
+  let i = 0;
+  while (i < pcm.length) {
+    let end = Math.min(pcm.length, i + per);
+    if (end < pcm.length && pcm.length - end > sr * 30) end = quietCut(pcm, end, sr);
+    out.push({ blob: pcmWav(pcm.subarray(i, end), sr), offset: i / sr, mime: 'audio/wav', name: 'call.wav' });
+    i = end;
+  }
+  if (!out.length) out.push({ blob: pcmWav(new Int16Array(sr / 2), sr), offset: 0, mime: 'audio/wav', name: 'call.wav' });
+  return out;
+}
+function plainSegs(text) {
+  return String(text || '').split(/\n+/).map(l => l.trim()).filter(Boolean).map(l => {
+    const m = l.match(/^\[?(\d{1,2}:\d{2}(?::\d{2})?)\]?\s*[-–]?\s*(?:([^:\]]{1,20}):\s*)?(.*)$/);
+    return m ? { s: toSec(m[1]), sp: (m[2] || '').trim(), t: m[3].trim() } : { s: null, sp: '', t: l };
+  }).filter(x => x.t);
+}
+const spLabel = id => { const v = String(id ?? '').trim(); const m = v.match(/(\d+)/); if (m) return `דובר ${+m[1] + 1}`; if (/^[A-Z]$/i.test(v)) return `דובר ${v.toUpperCase().charCodeAt(0) - 64}`; return v; };
+const STT = {
+  async elevenlabs(c, model, signal) {
+    const key = needKey('elevenlabs');
+    const fd = new FormData();
+    fd.append('model_id', model || 'scribe_v2'); fd.append('file', c.blob, c.name);
+    fd.append('language_code', 'heb'); fd.append('diarize', 'true'); fd.append('tag_audio_events', 'false'); fd.append('timestamps_granularity', 'word');
+    const j = await api('https://api.elevenlabs.io/v1/speech-to-text', { method: 'POST', headers: { 'xi-api-key': key }, body: fd }, 'ElevenLabs', signal);
+    const segs = []; let cur = null;
+    for (const w of j.words || []) {
+      if (w.type === 'audio_event') continue;
+      if (w.type === 'spacing') { if (cur) cur.t += w.text; continue; }
+      const sp = w.speaker_id ?? null;
+      if (!cur || sp !== cur._sp || (w.start - cur._e) > 1.6 || (cur.t.length > 260 && /[.?!]\s*$/.test(cur.t))) { cur = { s: w.start, sp: spLabel(sp), t: '', _sp: sp, _e: w.end }; segs.push(cur); }
+      cur.t += w.text; cur._e = w.end;
+    }
+    if (!segs.length && j.text) segs.push({ s: 0, sp: '', t: j.text });
+    return segs.map(x => ({ s: x.s, sp: x.sp, t: x.t.trim() })).filter(x => x.t);
+  },
+  async openai(c, model, signal, base = 'https://api.openai.com/v1', who = 'OpenAI', keyName = 'openai') {
+    const key = needKey(keyName);
+    const fd = new FormData();
+    fd.append('file', c.blob, c.name); fd.append('model', model); fd.append('language', 'he');
+    const verbose = /whisper/i.test(model), diar = /diarize/i.test(model);
+    fd.append('response_format', diar ? 'diarized_json' : verbose ? 'verbose_json' : 'json');
+    if (diar) fd.append('chunking_strategy', 'auto');
+    const j = await api(base + '/audio/transcriptions', { method: 'POST', headers: { authorization: 'Bearer ' + key }, body: fd }, who, signal);
+    if ((verbose || diar) && j.segments?.length) return j.segments.map(s => ({ s: s.start ?? null, sp: diar ? spLabel(s.speaker) : '', t: String(s.text || '').trim() })).filter(x => x.t);
+    const text = String(j.text || '').trim();
+    if (!text) return [];
+    const parts = text.split(/(?<=[.?!])\s+(?=\S)/).reduce((acc, s) => { const last = acc[acc.length - 1]; if (last && last.length < 160) acc[acc.length - 1] = last + ' ' + s; else acc.push(s); return acc; }, []);
+    return parts.map((t, i) => ({ s: i === 0 ? 0 : null, sp: '', t }));
+  },
+  groq(c, model, signal) { return STT.openai(c, model, signal, 'https://api.groq.com/openai/v1', 'Groq', 'groq'); },
+  async gemini(c, model, signal) {
+    const data = await blobToB64(c.blob);
+    const prompt = `תמלל את הקלטת שיחת הטלפון הזו מילה במילה, בשפה שבה מדברים (בדרך כלל עברית), בדיוק מרבי.
+הפרד בין הדוברים ("דובר 1", "דובר 2" וכו׳). כל קטע הוא תור דיבור או משפט אחד, עם זמן ההתחלה שלו מתחילת ההקלטה.
+אל תסכם, אל תתרגם, אל תשמיט ואל תוסיף מילים. אם לא שומעים דיבור בכלל – החזר רשימה ריקה.
+החזר JSON בלבד במבנה: {"segments":[{"start":"MM:SS","speaker":"דובר 1","text":"..."}]}`;
+    const t = await geminiText(model, [{ inline_data: { mime_type: c.mime || 'audio/wav', data } }, { text: prompt }], { json: !/transcribe/i.test(model), signal });
+    let j; try { j = parseJSONLoose(t); } catch { return plainSegs(t); }
+    const arr = Array.isArray(j) ? j : (j.segments || j.transcript || []);
+    if (typeof arr === 'string') return plainSegs(arr);
+    return arr.map(x => ({ s: toSec(x.start ?? x.time ?? x.s), sp: String(x.speaker || x.sp || ''), t: String(x.text || x.t || '').trim() })).filter(x => x.t);
+  },
+};
+async function transcribeRec(r, { signal, onStep } = {}) {
+  const p = S.settings.sttProvider, model = S.settings.sttModel[p];
+  needKey(STT_PROV[p].key);
+  onStep?.('מכין את הקובץ…');
+  const chunks = await sttChunks(r, STT_PROV[p].chunk);
+  const segs = [];
+  for (let i = 0; i < chunks.length; i++) {
+    onStep?.(chunks.length > 1 ? `מתמלל חלק ${i + 1} מתוך ${chunks.length}…` : 'מתמלל…');
+    const c = chunks[i];
+    const part = await STT[p](c, model, signal);
+    for (const s of part) segs.push({ s: s.s == null ? null : Math.round((s.s + c.offset) * 10) / 10, sp: s.sp || '', t: s.t });
+  }
+  r.tr = { segs, provider: p, model, at: Date.now() };
+  delete r.err;
+  await saveRec(r);
+  return r.tr;
+}
+function trText(r, max = 120000) {
+  if (!r.tr) return '';
+  let s = '';
+  for (const g of r.tr.segs) { s += `${g.s != null ? '[' + fmtDur(g.s) + '] ' : ''}${g.sp ? g.sp + ': ' : ''}${g.t}\n`; if (s.length > max) { s += '…(קוצר)'; break; } }
+  return s;
+}
+const SUM_SYSTEM = 'אתה עוזר אישי שמסכם הקלטות של שיחות טלפון. אתה כותב בעברית תקנית, קצרה וברורה, ונצמד רק למה שנאמר בשיחה.';
+async function summarizeRec(r, { signal, onStep } = {}) {
+  if (!r.tr) await transcribeRec(r, { signal, onStep });
+  const text = trText(r);
+  if (!text.trim()) {
+    r.sum = { title: 'לא זוהה דיבור', summary: 'בתמלול של ההקלטה הזו לא נמצא דיבור.', points: [], actions: [], dates: [], sentiment: '', tags: [], at: Date.now(), provider: '' };
+    await saveRec(r); return r.sum;
+  }
+  onStep?.('מסכם…');
+  const user = `פרטי השיחה:
+איש קשר: ${r._.who}${r._.isTel ? '' : (r._.phone ? ' (' + r._.phone + ')' : '')}
+מועד: ${fmtDayLong(r.ts, true)}, ${fmtTime(r.ts)}
+משך: ${fmtDur(r.dur)}
+
+תמלול (ייתכנו שגיאות תמלול – הבן מההקשר):
+${text}
+
+החזר JSON בלבד במבנה הזה:
+{"title":"כותרת קצרה לנושא השיחה, עד 8 מילים",
+ "summary":"תקציר של 2–4 משפטים",
+ "points":["נקודות עיקריות שעלו, עד 6"],
+ "actions":["משימות, התחייבויות או דברים שסוכמו – מי עושה מה ומתי, אם נאמר"],
+ "dates":["מועדים, תאריכים, פגישות או סכומים שהוזכרו"],
+ "sentiment":"אחד מ: חיובית, ניטרלית, מתוחה, שלילית",
+ "tags":["2–5 תגיות נושא קצרות, מילה או שתיים"]}
+רשימה שאין לה תוכן – החזר אותה ריקה.`;
+  const out = parseJSONLoose(await llm({ system: SUM_SYSTEM, user, json: true, signal }));
+  const arr = v => Array.isArray(v) ? v.map(x => typeof x === 'string' ? x : (x && (x.text || x.what || JSON.stringify(x)))).filter(Boolean).slice(0, 12) : (v ? [String(v)] : []);
+  r.sum = {
+    title: String(out.title || '').slice(0, 120), summary: String(out.summary || ''), points: arr(out.points), actions: arr(out.actions), dates: arr(out.dates),
+    sentiment: String(out.sentiment || ''), tags: arr(out.tags).map(t => String(t).replace(/^#/, '').trim()).filter(Boolean).slice(0, 6),
+    at: Date.now(), provider: S.settings.llmProvider, model: S.settings.llmModel[S.settings.llmProvider],
+  };
+  delete r.err;
+  await saveRec(r);
+  return r.sum;
+}
+
+/* ---------- smart search: natural language -> filter ---------- */
+async function aiToFilter(text) {
+  const names = S.contacts.slice(0, 350).map(c => `${c.who} (${c.n})`).join(', ');
+  const today = new Date();
+  const user = `היום: ${dkey(today)} (יום ${HE_WD[today.getDay()]}).
+המשתמש מחפש בארכיון של הקלטות שיחות טלפון. המר את הבקשה שלו למסנן.
+אנשי קשר קיימים (שם (מספר שיחות)): ${names}
+
+הבקשה: "${text}"
+
+החזר JSON בלבד:
+{"contacts":["שמות מדויקים מתוך הרשימה למעלה, אם הבקשה מתייחסת לאנשים מסוימים"],
+ "from":"YYYY-MM-DD או null","to":"YYYY-MM-DD או null (כולל)",
+ "minSec":מספר או null,"maxSec":מספר או null,
+ "hourFrom":0-23 או null,"hourTo":0-24 או null,
+ "weekdays":[0-6, 0=ראשון] או [],
+ "status":"tr" (מתומללות) | "sum" (מסוכמות) | "notr" | "star" (מועדפות) | "note" | null,
+ "kind":"named" | "tel" | null,
+ "text":"מילים לחיפוש בתוכן השיחות או בסיכומים, רק אם הבקשה מחפשת נושא או מילה. אחרת ריק",
+ "sort":"new" | "old" | "long" | "short",
+ "explain":"משפט קצר בעברית שמתאר את המסנן"}`;
+  const o = parseJSONLoose(await llm({ system: 'אתה ממיר בקשות חיפוש בעברית למסנני נתונים. אתה מחזיר JSON בלבד.', user, json: true }));
+  const f = defaultFilter();
+  const known = new Set(S.contacts.map(c => c.who));
+  f.contacts = (o.contacts || []).map(n => known.has(n) ? n : (S.contacts.find(c => c.who.includes(n) || n.includes(c.who))?.who)).filter(Boolean);
+  if (o.from || o.to) { f.date = 'custom'; f.from = o.from || ''; f.to = o.to || ''; }
+  const mn = +o.minSec || 0, mx = +o.maxSec || 0;
+  if (mn >= 900) f.dur = 'gt900'; else if (mn >= 300) f.dur = 'gt300'; else if (mn >= 60) f.dur = 'gt60'; else if (mn >= 10) f.dur = 'gt10';
+  else if (mx && mx <= 10) f.dur = 'lt10'; else if (mx && mx <= 60) f.dur = 'lt60';
+  if (o.hourFrom != null && o.hourTo != null) {
+    const a = +o.hourFrom, b = +o.hourTo;
+    f.tod = a >= 20 || (b <= 7 && a > b) ? 'night' : a >= 16 ? 'evening' : a >= 11 ? 'noon' : 'morning';
+  }
+  f.wd = Array.isArray(o.weekdays) ? o.weekdays.map(Number).filter(x => x >= 0 && x <= 6) : [];
+  if (STATUS_OPTS[o.status]) f.status = o.status;
+  if (KIND_OPTS[o.kind]) f.kind = o.kind;
+  if (SORT_OPTS[o.sort]) f.sort = o.sort;
+  f.q = String(o.text || '').trim();
+  return { f, explain: String(o.explain || '') };
+}
+
+/* ---------- questions over calls ---------- */
+function corpusOf(recs, maxChars = 140000) {
+  const withAI = recs.filter(r => r.sum || r.tr).sort((a, b) => b.ts - a.ts);
+  let s = '', used = 0;
+  for (const r of withAI) {
+    let block = `### ${r._.who} | ${fmtDayLong(r.ts, true)} ${fmtTime(r.ts)} | ${fmtDur(r.dur)}\n`;
+    if (r.sum) {
+      block += `נושא: ${r.sum.title}\nתקציר: ${r.sum.summary}\n`;
+      if (r.sum.points?.length) block += `נקודות: ${r.sum.points.join('; ')}\n`;
+      if (r.sum.actions?.length) block += `משימות/סיכומים: ${r.sum.actions.join('; ')}\n`;
+      if (r.sum.dates?.length) block += `מועדים: ${r.sum.dates.join('; ')}\n`;
+      if (r.tr && withAI.length <= 6) block += `תמלול:\n${trText(r, 12000)}\n`;
+    } else block += `תמלול:\n${trText(r, withAI.length <= 6 ? 20000 : 3500)}\n`;
+    if (s.length + block.length > maxChars) break;
+    s += block + '\n'; used++;
+  }
+  return { text: s, used, total: recs.length, withAI: withAI.length };
+}
+async function askAbout(recs, question, signal) {
+  const c = corpusOf(recs);
+  if (!c.used) throw new UserError('עוד אין תמלולים או סיכומים לשיחות האלה. תמלל או סכם קודם לפחות חלק מהן.');
+  const user = `להלן חומר מתוך ${c.used} שיחות טלפון מוקלטות של המשתמש (סיכומים ו/או תמלולים):\n\n${c.text}\n\nהשאלה של המשתמש: ${question}`;
+  const ans = await llm({ system: 'אתה עוזר שעונה על שאלות לגבי שיחות הטלפון המוקלטות של המשתמש. ענה בעברית, ישר ולעניין, רק על סמך החומר שקיבלת. כשאתה מסתמך על שיחה מסוימת, ציין את התאריך שלה. אם התשובה לא נמצאת בחומר, אמור זאת במפורש.', user, signal });
+  return { ans, ...c };
+}
+function mdLite(t) {
+  const lines = esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').split(/\n/);
+  let html = '', inList = false;
+  for (const l of lines) {
+    const m = l.match(/^\s*(?:[-*•]|\d+[.)])\s+(.*)$/);
+    if (m) { if (!inList) { html += '<ul>'; inList = true; } html += `<li>${m[1]}</li>`; continue; }
+    if (inList) { html += '</ul>'; inList = false; }
+    if (/^\s*#{1,4}\s+/.test(l)) html += `<p><b>${l.replace(/^\s*#{1,4}\s+/, '')}</b></p>`;
+    else if (l.trim()) html += `<p>${l}</p>`;
+  }
+  if (inList) html += '</ul>';
+  return html;
+}
+
+/* ---------- connection tests ---------- */
+async function testKey(p, key) {
+  key = key.trim(); if (!key) throw new Error('אין מפתח');
+  if (p === 'gemini') { const j = await api(`https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key=${encodeURIComponent(key)}`, {}, 'Gemini'); return (j.models || []).filter(m => (m.supportedGenerationMethods || []).includes('generateContent')).map(m => m.name.replace(/^models\//, '')); }
+  if (p === 'openai') { const j = await api('https://api.openai.com/v1/models', { headers: { authorization: 'Bearer ' + key } }, 'OpenAI'); return (j.data || []).map(m => m.id).sort(); }
+  if (p === 'groq') { const j = await api('https://api.groq.com/openai/v1/models', { headers: { authorization: 'Bearer ' + key } }, 'Groq'); return (j.data || []).map(m => m.id).sort(); }
+  if (p === 'anthropic') { const j = await api('https://api.anthropic.com/v1/models?limit=100', { headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' } }, 'Claude'); return (j.data || []).map(m => m.id); }
+  if (p === 'elevenlabs') { await api('https://api.elevenlabs.io/v1/models', { headers: { 'xi-api-key': key } }, 'ElevenLabs'); return []; }
+  return [];
+}
+
+/* =====================================================================
+   UI
+   ===================================================================== */
+const app = $('#app'), viewEl = $('#view');
+
+/* ---------- toast, tooltip, modal ---------- */
+function toast(msg, type = '') {
+  const t = h(`<div class="toast ${type}" role="status"></div>`); t.textContent = msg;
+  $('#toasts').append(t); setTimeout(() => t.classList.add('out'), type === 'err' ? 6500 : 3800); setTimeout(() => t.remove(), type === 'err' ? 7000 : 4300);
+}
+(() => {
+  const tip = $('#tip'); let cur = null;
+  document.addEventListener('mouseover', e => {
+    const el = e.target.closest?.('[data-tip]'); if (el === cur) return; cur = el;
+    if (!el) { tip.hidden = true; return; }
+    tip.textContent = el.dataset.tip; tip.hidden = false;
+    const r = el.getBoundingClientRect(), tr = tip.getBoundingClientRect();
+    let x = r.left + r.width / 2 - tr.width / 2, y = r.top - tr.height - 8;
+    if (y < 6) y = r.bottom + 8;
+    tip.style.left = clamp(x, 6, innerWidth - tr.width - 6) + 'px'; tip.style.top = y + 'px';
+  });
+  document.addEventListener('scroll', () => { tip.hidden = true; cur = null; }, true);
+})();
+function modal({ title, body = '', wide = false, actions = [], onClose }) {
+  const back = h(`<div class="mback"><div class="modal${wide ? ' wide' : ''}" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="m-head"><h2>${esc(title)}</h2><button class="ib" data-close title="סגירה">${I.x}</button></div><div class="m-body"></div><div class="m-foot"></div></div></div>`);
+  const m = back.firstElementChild, bodyEl = $('.m-body', m), foot = $('.m-foot', m);
+  if (typeof body === 'string') bodyEl.innerHTML = body; else bodyEl.append(body);
+  let closed = false;
+  const close = () => { if (closed) return; closed = true; back.remove(); document.removeEventListener('keydown', onKey); onClose?.(); };
+  const onKey = e => { if (e.key === 'Escape' && $('#modals').lastElementChild === back) close(); };
+  document.addEventListener('keydown', onKey);
+  back.addEventListener('mousedown', e => { if (e.target === back) close(); });
+  $('[data-close]', m).onclick = close;
+  const setActions = acts => {
+    foot.innerHTML = '';
+    for (const a of acts) {
+      if (a === 'grow') { foot.append(h('<span class="grow"></span>')); continue; }
+      const b = h(`<button class="btn ${a.cls || ''}" type="button">${a.icon || ''}${esc(a.label)}</button>`);
+      b.onclick = () => a.onClick ? a.onClick(close, b) : close(); foot.append(b);
+    }
+  };
+  setActions(actions);
+  $('#modals').append(back);
+  setTimeout(() => ($('[autofocus]', m) || $('.m-foot .btn.primary', m))?.focus(), 30);
+  return { el: m, body: bodyEl, close, setActions };
+}
+function confirmBox(title, text, okLabel = 'אישור', cls = 'primary') {
+  return new Promise(res => {
+    let v = false;
+    modal({ title, body: `<p style="margin:0">${text}</p>`, actions: [{ label: okLabel, cls, onClick: c => { v = true; c(); } }, { label: 'ביטול' }], onClose: () => res(v) });
+  });
+}
+function downloadBlob(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000); }
+function showErr(e, ctx) {
+  if (e?.name === 'AbortError') return;
+  if (!e?.user) console.error(ctx || '', e);
+  const msg = e?.message || String(e);
+  if (e?.code === 'nokey') {
+    modal({ title: 'צריך מפתח API', body: `<p style="margin:0">${esc(msg)}</p><p class="note">המפתח נשמר רק בדפדפן הזה, והבקשות נשלחות ישירות לספק.</p>`, actions: [{ label: 'פתח הגדרות', cls: 'primary', onClick: c => { c(); openSettings(); } }, { label: 'סגירה' }] });
+  } else if (e?.code === 'resync' || e?.code === 'perm') {
+    modal({ title: 'אין גישה לקובץ', body: `<p style="margin:0">${esc(msg)}</p>`, actions: [{ label: e.code === 'perm' ? 'אשר גישה' : 'סנכרון', cls: 'primary', onClick: async c => { c(); if (e.code === 'perm') { await requestAllPerms(); } else openFolders(); } }, { label: 'סגירה' }] });
+  } else toast(msg, 'err');
+}
+
+/* ---------- nav ---------- */
+const VIEWS = { list: ['הקלטות', I.list], calendar: ['לוח שנה', I.cal], people: ['אנשים', I.people], stats: ['נתונים', I.chart] };
+function renderNav() {
+  const favs = S.contacts.filter(c => !c.isTel).slice(0, 8);
+  const tot = S.recs.reduce((a, r) => a + (r.dur || 0), 0);
+  $('#nav').innerHTML = Object.entries(VIEWS).map(([k, [l, ic]]) => `<button class="nav-b${S.view === k ? ' on' : ''}" data-view="${k}">${ic}<span>${l}</span>${k === 'list' ? `<span class="cnt num">${nf(S.filtered.length)}</span>` : ''}</button>`).join('') +
+    (favs.length ? `<div class="side-sep"></div><div class="side-h">אנשי קשר מובילים</div><div class="side-fav">${favs.map(c => `<button data-fav="${esc(c.who)}" class="${S.f.contacts.length === 1 && S.f.contacts[0] === c.who ? 'on' : ''}"><span class="av" style="--hue:${hueOf(c.who)}">${initial(c.who, c.isTel)}</span><span>${esc(c.who)}</span><span class="t num">${nf(c.n)}</span></button>`).join('')}</div>` : '') +
+    `<div class="side-foot">${S.recs.length ? `<b class="num">${nf(S.recs.length)}</b> הקלטות<br><b class="num">${fmtHours(tot)}</b> שעות שיחה<br>${nf(S.contacts.length)} אנשי קשר` : 'הארכיון ריק'}</div>`;
+}
+$('#nav').addEventListener('click', e => {
+  const v = e.target.closest('[data-view]'); if (v) { setView(v.dataset.view); return; }
+  const f = e.target.closest('[data-fav]');
+  if (f) { const who = f.dataset.fav; const on = S.f.contacts.length === 1 && S.f.contacts[0] === who; S.f.contacts = on ? [] : [who]; refresh(); if (!on) openContact(who); }
+});
+function setView(v) { S.view = v; LS.set('ca-view', v); viewEl.scrollTop = 0; renderNav(); renderView(); }
+
+/* ---------- filters ---------- */
+function opts(map, val) { return Object.entries(map).map(([k, v]) => `<option value="${k}"${k === val ? ' selected' : ''}>${esc(Array.isArray(v) ? v[0] : v)}</option>`).join(''); }
+function renderFilters() {
+  const f = S.f, more = filterCount(f);
+  const dates = [['all', 'הכל'], ['today', 'היום'], ['yesterday', 'אתמול'], ['7d', '7 ימים'], ['30d', '30 יום'], ['month', 'החודש'], ['custom', 'טווח…']];
+  $('#filters').innerHTML = `
+  <div class="fbar">
+    <div class="seg" id="fDate" role="group" aria-label="טווח תאריכים">${dates.map(([k, l]) => `<button data-v="${k}" class="${f.date === k ? 'on' : ''}">${l}</button>`).join('')}</div>
+    <span class="range"${f.date === 'custom' ? '' : ' hidden'}><input class="inp" type="date" id="fFrom" value="${f.from}"><span>עד</span><input class="inp" type="date" id="fTo" value="${f.to}"></span>
+    <input class="inp contact-in" id="fContact" list="dlContacts" placeholder="+ איש קשר" autocomplete="off"><datalist id="dlContacts">${S.contacts.slice(0, 1500).map(c => `<option value="${esc(c.who)}">${nf(c.n)} שיחות</option>`).join('')}</datalist>
+    <select class="inp" id="fDur" title="משך שיחה">${opts(DUR_OPTS, f.dur)}</select>
+    <select class="inp" id="fStatus" title="מצב">${opts(STATUS_OPTS, f.status)}</select>
+    <select class="inp" id="fSort" title="מיון">${opts(SORT_OPTS, f.sort)}</select>
+    <button class="btn sm more-b" id="fMore" type="button">${I.filter}עוד מסננים${more ? `<span class="dot">${more}</span>` : ''}</button>
+    ${isFiltered(f) ? '<button class="btn link sm" id="fClear" type="button">ניקוי הסינון</button>' : ''}
+  </div>
+  <div class="fbar2"${S.moreOpen ? '' : ' hidden'}>
+    <select class="inp" id="fTod" title="שעה ביום">${opts(TOD_OPTS, f.tod)}</select>
+    <select class="inp" id="fKind" title="סוג איש קשר">${opts(KIND_OPTS, f.kind)}</select>
+    <select class="inp" id="fTag" title="תגית"><option value="">כל התגיות</option>${S.tagsAll.map(t => `<option${t === f.tag ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select>
+    <label>ימים:</label><div class="wd" id="fWd">${HE_WD_S.map((d, i) => `<button data-wd="${i}" class="${f.wd.includes(i) ? 'on' : ''}" title="יום ${HE_WD[i]}">${d.replace('׳', '')}</button>`).join('')}</div>
+  </div>
+  ${f.contacts.length ? `<div class="chips">${f.contacts.map(c => `<span class="chip">${esc(c)}<button data-rmc="${esc(c)}" title="הסרה">${I.x}</button></span>`).join('')}</div>` : ''}
+  <div class="resbar" id="resbar"></div>`;
+  renderResbar();
+}
+function renderResbar() {
+  const el = $('#resbar'); if (!el) return;
+  const n = S.filtered.length, sec = S.filtered.reduce((a, r) => a + (r.dur || 0), 0);
+  const todo = S.filtered.filter(r => !r.sum).length;
+  el.innerHTML = `<span><b class="num">${nf(n)}</b> הקלטות</span><span><b class="num">${fmtTotal(sec)}</b> זמן שיחה</span>${S.f.q ? `<span>חיפוש: <b>${esc(S.f.q)}</b></span>` : ''}
+    <span class="grow"></span>
+    ${n ? `<button class="btn sm ai" id="askBtn" type="button">${I.ai}שאלה על התוצאות</button>
+    <button class="btn sm ai" id="batchBtn" type="button" ${todo ? '' : 'disabled'}>${I.ai}תמלול וסיכום (${nf(todo)})</button>
+    <button class="btn sm" id="csvBtn" type="button">${I.dl}ייצוא לאקסל</button>` : ''}`;
+}
+$('#filters').addEventListener('click', e => {
+  const t = e.target;
+  const d = t.closest('#fDate button'); if (d) { S.f.date = d.dataset.v; if (d.dataset.v === 'custom' && !S.f.from) { S.f.from = dkey(S.recs.at(-1)?.ts || Date.now()); S.f.to = dkey(Date.now()); } refresh(true); return; }
+  const w = t.closest('[data-wd]'); if (w) { const i = +w.dataset.wd; S.f.wd = S.f.wd.includes(i) ? S.f.wd.filter(x => x !== i) : [...S.f.wd, i]; refresh(true); return; }
+  const rm = t.closest('[data-rmc]'); if (rm) { S.f.contacts = S.f.contacts.filter(c => c !== rm.dataset.rmc); refresh(true); return; }
+  if (t.closest('#fMore')) { S.moreOpen = !S.moreOpen; renderFilters(); return; }
+  if (t.closest('#fClear')) { const q = $('#q'); S.f = defaultFilter(); q.value = ''; refresh(true); return; }
+  if (t.closest('#csvBtn')) { exportCSV(S.filtered); return; }
+  if (t.closest('#batchBtn')) { startBatch(S.filtered); return; }
+  if (t.closest('#askBtn')) { openAsk(S.filtered, S.f.contacts.length === 1 ? `השיחות עם ${S.f.contacts[0]}` : 'השיחות שמוצגות כרגע'); return; }
+});
+$('#filters').addEventListener('change', e => {
+  const t = e.target, f = S.f;
+  if (t.id === 'fFrom') f.from = t.value; else if (t.id === 'fTo') f.to = t.value;
+  else if (t.id === 'fDur') f.dur = t.value; else if (t.id === 'fStatus') f.status = t.value; else if (t.id === 'fSort') f.sort = t.value;
+  else if (t.id === 'fTod') f.tod = t.value; else if (t.id === 'fKind') f.kind = t.value; else if (t.id === 'fTag') f.tag = t.value;
+  else if (t.id === 'fContact') { addContactFilter(t.value); return; }
+  else return;
+  refresh(true);
+});
+$('#filters').addEventListener('keydown', e => { if (e.target.id === 'fContact' && e.key === 'Enter') addContactFilter(e.target.value); });
+function addContactFilter(v) {
+  v = v.trim(); if (!v) return;
+  const c = S.contacts.find(x => x.who === v) || S.contacts.find(x => norm(x.who).includes(norm(v)));
+  if (!c) { toast('לא נמצא איש קשר בשם הזה'); return; }
+  if (!S.f.contacts.includes(c.who)) S.f.contacts.push(c.who);
+  refresh(true);
+}
+const qInput = $('#q');
+qInput.addEventListener('input', debounce(() => { S.f.q = qInput.value.trim(); refresh(true, true); }, 180));
+$('#aiSearchBtn').addEventListener('click', async e => {
+  e.preventDefault();
+  const text = qInput.value.trim();
+  if (!text) { toast('כתוב בשורת החיפוש מה אתה מחפש, למשל: "שיחות ארוכות עם אמא בספטמבר"'); qInput.focus(); return; }
+  const b = e.currentTarget; const old = b.innerHTML; b.innerHTML = '<span class="spin"></span>מבין…'; b.disabled = true;
+  try {
+    const { f, explain } = await aiToFilter(text);
+    S.f = f; qInput.value = f.q; refresh(true);
+    toast(explain ? `הסינון: ${explain}` : 'הסינון עודכן');
+  } catch (err) { showErr(err); } finally { b.innerHTML = old; b.disabled = false; }
+});
+
+function refresh(resetScroll = false, keepFilters = false) {
+  applyFilter();
+  if (!keepFilters) renderFilters(); else renderResbar();
+  renderNav();
+  if (resetScroll) viewEl.scrollTop = 0;
+  renderView();
+}
+
+/* ---------- views ---------- */
+function renderView() {
+  if (!S.recs.length) { $('#filters').hidden = true; renderWelcome(); return; }
+  $('#filters').hidden = false;
+  if (S.view === 'calendar') renderCalendar();
+  else if (S.view === 'people') renderPeople();
+  else if (S.view === 'stats') renderStats();
+  else renderList();
+}
+function renderWelcome() {
+  viewEl.innerHTML = `<div class="welcome">
+    <div class="reel">${I.reel}</div>
+    <h1>כל השיחות שלך, לפי יום ולפי אדם</h1>
+    <p>בחר את תיקיית ההקלטות. האתר מזהה מכל קובץ את איש הקשר, התאריך והשעה, ומחשב את משך השיחה. הקבצים נקראים מהמחשב ולא עולים לשום מקום.</p>
+    <button class="btn primary lg" data-act="add-folder" type="button">${I.folder}בחירת תיקיית הקלטות</button>
+    <p class="small">אפשר גם לגרור תיקייה לחלון. סנכרון חוזר מוסיף רק הקלטות חדשות, בלי כפילויות.${DB.mem ? '<br><b>שים לב:</b> הדפדפן הזה לא מאפשר שמירה מקומית, לכן הנתונים יימחקו כשתסגור את הדף.' : ''}${!hasFSA ? '<br>לחוויה מלאה (זכירת התיקייה בין פתיחות) מומלץ לפתוח את הקובץ ב-Chrome או ב-Edge.' : ''}</p>
+  </div>`;
+}
+
+/* list */
+const tapeW = d => Math.max(2, Math.min(100, Math.log10(1 + (d || 0)) / Math.log10(1 + 2400) * 100));
+function hl(text) {
+  const s = esc(text); const q = norm(S.f.q); if (!q) return s;
+  const terms = q.split(/\s+/).filter(t => t.length > 1).map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  if (!terms.length) return s;
+  try { return s.replace(new RegExp(`(${terms.join('|')})`, 'gi'), '<mark>$1</mark>'); } catch { return s; }
+}
+function rowHTML(r, showDate) {
+  const d = r._, busy = S.busy.get(r.id), playing = P.rec?.id === r.id;
+  const sub = r.sum?.title || (S.aliases[d.ck] && d.isTel === false && d.phone ? d.phone : '') || (!d.isTel && d.phone && d.who !== d.phone ? '' : '');
+  return `<div class="row${showDate ? ' sd' : ''}${S.aside?.type === 'rec' && S.aside.id === r.id ? ' sel' : ''}${playing ? ' playing' : ''}" data-id="${r.id}" data-sd="${showDate ? 1 : ''}">
+    <span class="r-time">${showDate ? fmtDateShort(r.ts) + '&ensp;' : ''}${fmtTime(r.ts)}</span>
+    <span class="av" style="--hue:${d.hue}">${initial(d.who, d.isTel)}</span>
+    <span class="r-who"><b>${hl(d.who)}</b><small>${esc(sub)}</small></span>
+    <span class="r-tape" aria-hidden="true"><i style="inline-size:${tapeW(r.dur)}%"></i></span>
+    <span class="r-dur">${fmtDur(r.dur)}</span>
+    <span class="r-flags">${busy ? '<span class="spin" data-tip="' + esc(busy) + '"></span>' : ''}${r.tr ? '<i class="fl" data-tip="יש תמלול">ת</i>' : ''}${r.sum ? '<i class="fl sm" data-tip="יש סיכום">ס</i>' : ''}</span>
+    <button class="ib star${r.star ? ' on' : ''}" data-act="star" title="מועדף">${I.star}</button>
+    <button class="ib playb" data-act="play" title="ניגון">${playing && !P.audio.paused ? I.pause : I.play}</button>
+  </div>`;
+}
+let listObs = null;
+function renderList() {
+  const list = S.filtered;
+  if (!list.length) {
+    viewEl.innerHTML = `<div class="empty"><h2>אין הקלטות שמתאימות לסינון</h2><p>נסה לשנות את מילות החיפוש או להרחיב את טווח התאריכים.</p><button class="btn" data-act="clear-filter" type="button">ניקוי הסינון</button></div>`; return;
+  }
+  const grouped = S.f.sort === 'new' || S.f.sort === 'old';
+  const items = [];
+  if (grouped) {
+    const tot = new Map();
+    for (const r of list) { const t = tot.get(r._.dk) || { n: 0, s: 0 }; t.n++; t.s += r.dur || 0; tot.set(r._.dk, t); }
+    let last = null;
+    for (const r of list) { if (r._.dk !== last) { last = r._.dk; items.push({ day: last, ...tot.get(last) }); } items.push(r); }
+  } else items.push(...list);
+  viewEl.innerHTML = '<div class="list" id="list"></div><div class="sentinel" id="sentinel"></div>';
+  const listEl = $('#list'); let pos = 0; let cur = null;
+  const today = dkey(Date.now()), yest = dkey(Date.now() - 864e5);
+  const more = () => {
+    let html = ''; const end = Math.min(items.length, pos + 300);
+    const parts = [];
+    for (; pos < end; pos++) {
+      const it = items[pos];
+      if (it.day) {
+        if (cur !== null) parts.push('</div>');
+        const ts = dkeyToTs(it.day);
+        parts.push(`<div class="day" data-day="${it.day}"><div class="day-h"><span class="day-n">${fmtDayLong(ts)}</span>${it.day === today ? '<span class="badge">היום</span>' : it.day === yest ? '<span class="badge">אתמול</span>' : ''}<span class="day-t">${fmtTotal(it.s)}</span><span class="day-c">${nf(it.n)} שיחות</span></div>`);
+        cur = it.day;
+      } else parts.push(rowHTML(it, !grouped));
+    }
+    html = parts.join('');
+    // append: continue an open day group if needed
+    const tmp = document.createElement('div'); tmp.innerHTML = html;
+    const lastDay = listEl.lastElementChild;
+    if (lastDay && lastDay.classList.contains('day')) { while (tmp.firstChild && tmp.firstChild.classList?.contains('row')) lastDay.append(tmp.firstChild); }
+    listEl.append(...tmp.childNodes);
+    if (pos >= items.length) { listObs?.disconnect(); $('#sentinel')?.remove(); }
+  };
+  more();
+  listObs?.disconnect();
+  listObs = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) more(); }, { root: viewEl, rootMargin: '600px' });
+  const sen = $('#sentinel'); if (sen) listObs.observe(sen);
+}
+function updateRow(id) {
+  const r = S.byId.get(id); if (!r) return;
+  $$(`.row[data-id="${id}"]`).forEach(el => el.replaceWith(h(rowHTML(r, el.dataset.sd === '1'))));
+}
+viewEl.addEventListener('click', e => {
+  const t = e.target;
+  const act = t.closest('[data-act]')?.dataset.act;
+  if (act === 'add-folder') { addFolder(); return; }
+  if (act === 'import-contacts') { pickContactsFile(); return; }
+  if (act === 'clear-filter') { S.f = defaultFilter(); qInput.value = ''; refresh(true); return; }
+  const row = t.closest('.row[data-id]');
+  if (row) {
+    const id = row.dataset.id;
+    if (act === 'star') { toggleStar(id); return; }
+    if (act === 'play') { togglePlay(id); return; }
+    openRec(id); return;
+  }
+  const tlb = t.closest('.tl-b'); if (tlb) { openRec(tlb.dataset.id); return; }
+  const dc = t.closest('[data-day]'); if (dc && (dc.classList.contains('dc') || dc.classList.contains('c'))) { S.calDay = dc.dataset.day; const d = new Date(dkeyToTs(S.calDay)); S.calMonth = new Date(d.getFullYear(), d.getMonth(), 1).getTime(); renderCalendar(); return; }
+  const mn = t.closest('[data-mon]'); if (mn) { const d = new Date(S.calMonth); S.calMonth = new Date(d.getFullYear(), d.getMonth() + (+mn.dataset.mon), 1).getTime(); S.calDay = null; renderCalendar(); return; }
+  if (act === 'day-list') { S.f.date = 'custom'; S.f.from = S.f.to = S.calDay; setView('list'); refresh(true); return; }
+  const pr = t.closest('[data-person]'); if (pr) { openContact(pr.dataset.person); return; }
+  const ps = t.closest('[data-psort]'); if (ps) { S.peopleSort = ps.dataset.psort; renderPeople(); return; }
+  const lr = t.closest('[data-longest]'); if (lr) { openRec(lr.dataset.longest); return; }
+});
+viewEl.addEventListener('dblclick', e => { const row = e.target.closest('.row[data-id]'); if (row && !e.target.closest('[data-act]')) play(row.dataset.id); });
+viewEl.addEventListener('input', e => { if (e.target.id === 'pplQ') { S.peopleQ = e.target.value; renderPeopleTable(); } });
+
+/* calendar */
+function fmtCompact(s) { s = Math.round(s || 0); if (s < 60) return `${s} שנ׳`; if (s < 3600) return `${Math.round(s / 60)} ד׳`; return `${Math.floor(s / 3600)}:${pad(Math.floor(s % 3600 / 60))} ש׳`; }
+const heat = sec => !sec ? 0 : sec < 600 ? 1 : sec < 1800 ? 2 : sec < 3600 ? 3 : sec < 7200 ? 4 : 5;
+function dayAgg(list) { const m = new Map(); for (const r of list) { let a = m.get(r._.dk); if (!a) { a = { n: 0, s: 0, recs: [] }; m.set(r._.dk, a); } a.n++; a.s += r.dur || 0; a.recs.push(r); } return m; }
+function renderCalendar() {
+  const agg = dayAgg(S.filtered);
+  const allTs = S.recs.map(r => r.ts);
+  const minTs = Math.min(...allTs), maxTs = Math.max(Math.max(...allTs), Date.now());
+  if (!S.calMonth) { const d = new Date(S.filtered[0]?.ts || maxTs); S.calMonth = new Date(d.getFullYear(), d.getMonth(), 1).getTime(); }
+  // year map
+  const start = new Date(minTs); start.setHours(0, 0, 0, 0); start.setDate(start.getDate() - start.getDay());
+  const end = new Date(maxTs); end.setHours(0, 0, 0, 0);
+  const cells = []; let col = 0; let lastMon = -1;
+  const today = dkey(Date.now());
+  for (let d = new Date(start); d <= end || d.getDay() !== 0; d.setDate(d.getDate() + 1)) {
+    if (d.getDay() === 0) {
+      col++;
+      const probe = new Date(d); probe.setDate(probe.getDate() + 6);
+      const mo = probe.getDate() <= 7 ? probe.getMonth() : -1;
+      cells.push(`<span class="ml" style="grid-column:${col}">${mo >= 0 && mo !== lastMon ? HE_MON_S[mo] : ''}</span>`);
+      if (mo >= 0) lastMon = mo;
+    }
+    const k = dkey(d), a = agg.get(k), out = d > end;
+    cells.push(`<button class="c ${out ? 'x' : 'h' + heat(a?.s)}${k === S.calDay ? ' on' : ''}" style="grid-column:${col};grid-row:${d.getDay() + 2}" data-day="${k}" ${out ? 'disabled' : ''} data-tip="${fmtDayLong(d.getTime(), true)}\n${a ? `${fmtTotal(a.s)} · ${a.n} שיחות` : 'אין שיחות'}"></button>`);
+    if (cells.length > 4000) break;
+  }
+  const m0 = new Date(S.calMonth), y = m0.getFullYear(), mo = m0.getMonth();
+  const days = new Date(y, mo + 1, 0).getDate(), lead = new Date(y, mo, 1).getDay();
+  let monTot = 0, monN = 0, monDays = 0;
+  const mcells = [];
+  for (let i = 0; i < lead; i++) mcells.push('<div class="dc out"></div>');
+  for (let dd = 1; dd <= days; dd++) {
+    const k = `${y}-${pad(mo + 1)}-${pad(dd)}`, a = agg.get(k);
+    if (a) { monTot += a.s; monN += a.n; monDays++; }
+    mcells.push(`<button class="dc h${heat(a?.s)}${k === today ? ' today' : ''}${k === S.calDay ? ' on' : ''}" data-day="${k}" data-tip="${fmtDayLong(dkeyToTs(k), true)}${a ? `\n${a.n} שיחות, ${fmtTotal(a.s)}` : '\nאין שיחות'}"><span class="dn">${dd}</span>${a ? `<span class="dm">${fmtCompact(a.s)}</span>` : ''}</button>`);
+  }
+  const sel = S.calDay ? agg.get(S.calDay) : null;
+  let dayHTML;
+  if (S.calDay) {
+    const recs = (sel?.recs || []).slice().sort((a, b) => a.ts - b.ts);
+    const dayStart = dkeyToTs(S.calDay);
+    const people = new Set(recs.map(r => r._.who)).size;
+    dayHTML = `<div class="dayp"><div class="dayp-h"><h2>${fmtDayLong(dayStart, true)}</h2></div>
+      <div class="big">${fmtTotal(sel?.s || 0)}</div><div class="sub">${sel ? `${nf(sel.n)} שיחות עם ${nf(people)} אנשים, השיחה הארוכה ${fmtDur(Math.max(...recs.map(r => r.dur)))}` : 'אין שיחות ביום הזה'}</div>
+      ${sel ? `<div class="tl"><div class="tl-track">${recs.map(r => { const st = (r.ts - dayStart) / 864e5 * 100, w = (r.dur || 0) / 86400 * 100; return `<button class="tl-b" data-id="${r.id}" style="inset-inline-start:${st.toFixed(3)}%;inline-size:${w.toFixed(3)}%" data-tip="${fmtTime(r.ts)} ${esc(r._.who)}\n${fmtDur(r.dur)}"></button>`; }).join('')}</div>
+      <div class="tl-ax">${[3, 6, 9, 12, 15, 18, 21].map(hh => `<span style="inset-inline-start:${hh / 24 * 100}%">${pad(hh)}:00</span>`).join('')}</div></div>
+      <div>${recs.map(r => rowHTML(r, false)).join('')}</div>
+      <button class="btn sm" data-act="day-list" type="button" style="margin-top:10px">הצג את היום ברשימה</button>` : ''}</div>`;
+  } else dayHTML = `<div class="dayp"><div class="dayp-h"><h2>בחר יום</h2></div><p class="sub" style="margin-top:8px">לחץ על יום בלוח כדי לראות את ציר השיחות שלו: מי, מתי וכמה זמן.</p></div>`;
+  const wkdays = HE_WD_S.map(d => `<div class="wdh">${d}</div>`).join('');
+  viewEl.innerHTML = `<div class="cal">
+    <div class="ymap"><div class="ymap-h"><h3>כל התקופה</h3><span>כל ריבוע הוא יום. ככל שהצבע כהה יותר, דיברת יותר.</span></div>
+      <div class="ym-scroll"><div class="ym">${cells.join('')}</div></div>
+      <div class="legend"><span>פחות</span>${[0, 1, 2, 3, 4, 5].map(i => `<i class="h${i}" data-tip="${['אין שיחות', 'עד 10 דק׳', '10–30 דק׳', '30–60 דק׳', '1–2 שעות', 'מעל שעתיים'][i]}"></i>`).join('')}<span>יותר</span></div></div>
+    <div class="cal-main">
+      <div class="mon"><div class="mon-h"><button class="ib" data-mon="-1" title="החודש הקודם">${I.chevR}</button><h2>${HE_MON[mo]} ${y}</h2><button class="ib" data-mon="1" title="החודש הבא">${I.chevL}</button>
+        <div class="tot"><b>${fmtTotal(monTot)}</b>${nf(monN)} שיחות ב-${monDays} ימים</div></div>
+        <div class="mg">${wkdays}${mcells.join('')}</div></div>
+      ${dayHTML}
+    </div></div>`;
+  requestAnimationFrame(() => { const on = $('.ym .c.on') || $$('.ym .c:not(.x)').at(-1); on?.scrollIntoView({ block: 'nearest', inline: 'nearest' }); });
+}
+
+/* people */
+function peopleAgg(list) {
+  const months = [...new Set(S.recs.map(r => r._.mk))].sort();
+  const mi = new Map(months.map((m, i) => [m, i]));
+  const m = new Map();
+  for (const r of list) {
+    let c = m.get(r._.who);
+    if (!c) { c = { who: r._.who, isTel: r._.isTel, phone: r._.phone, n: 0, s: 0, last: 0, first: Infinity, tr: 0, mon: new Array(months.length).fill(0) }; m.set(r._.who, c); }
+    c.n++; c.s += r.dur || 0; if (r.ts > c.last) c.last = r.ts; if (r.ts < c.first) c.first = r.ts; if (r.sum) c.tr++;
+    c.mon[mi.get(r._.mk)] += r.dur || 0;
+  }
+  return { list: [...m.values()], months };
+}
+function renderPeople() {
+  viewEl.innerHTML = `<div class="ppl"><div class="ppl-h"><input class="inp" id="pplQ" placeholder="סינון לפי שם או מספר" value="${esc(S.peopleQ)}"><span class="note" style="flex:1">לחץ על שורה כדי לראות את כל הפרטים ולשנות שם לאיש קשר</span><button class="btn sm" data-act="import-contacts" type="button" title="קובץ VCF מהטלפון או CSV מ-Google Contacts">${I.people}ייבוא שמות מאנשי הקשר</button></div><div id="pplT"></div></div>`;
+  renderPeopleTable();
+}
+function renderPeopleTable() {
+  const { list, months } = peopleAgg(S.filtered);
+  const q = norm(S.peopleQ);
+  let rows = q ? list.filter(c => norm(c.who + ' ' + c.phone).includes(q) || c.phone.replace(/\D/g, '').includes(q.replace(/\D/g, '') || '#')) : list;
+  const so = S.peopleSort;
+  rows.sort(so === 'n' ? (a, b) => b.n - a.n : so === 'last' ? (a, b) => b.last - a.last : so === 'name' ? (a, b) => a.who.localeCompare(b.who, 'he') : so === 'avg' ? (a, b) => b.s / b.n - a.s / a.n : (a, b) => b.s - a.s);
+  const maxS = Math.max(1, ...rows.map(c => c.s));
+  const shown = rows.slice(0, 400);
+  const th = (k, l, cls = '') => `<th class="${cls}"><button data-psort="${k}" class="${so === k ? 'on' : ''}">${l}</button></th>`;
+  $('#pplT').innerHTML = rows.length ? `<table class="ptable"><thead><tr>${th('name', 'איש קשר')}${th('sec', 'זמן שיחה כולל')}${th('n', 'שיחות')}${th('avg', 'ממוצע', 'hide-m')}${th('last', 'שיחה אחרונה')}<th class="hide-m">פעילות לפי חודש</th></tr></thead><tbody>
+    ${shown.map(c => `<tr data-person="${esc(c.who)}"><td><div class="pname"><span class="av" style="--hue:${hueOf(c.who)}">${initial(c.who, c.isTel)}</span><span><b>${esc(c.who)}</b>${!c.isTel && c.phone ? `<small>${esc(c.phone)}</small>` : ''}</span></div></td>
+      <td><div class="pbar"><span class="r-tape"><i style="inline-size:${(c.s / maxS * 100).toFixed(1)}%"></i></span><span class="num" style="min-inline-size:86px">${fmtTotal(c.s)}</span></div></td>
+      <td class="num">${nf(c.n)}</td><td class="num hide-m">${fmtDur(c.s / c.n)}</td><td>${relDay(c.last)}</td>
+      <td class="hide-m"><span class="strip">${c.mon.map((v, i) => `<i class="h${heat(v / 4)}" data-tip="${HE_MON[+months[i].slice(5) - 1]} ${months[i].slice(0, 4)}: ${fmtTotal(v)}"></i>`).join('')}</span></td></tr>`).join('')}
+    </tbody></table>${rows.length > shown.length ? `<p class="note">מוצגים ${shown.length} מתוך ${nf(rows.length)}. אפשר לסנן לפי שם כדי למצוא אחרים.</p>` : ''}` : '<div class="empty"><h2>לא נמצאו אנשי קשר</h2></div>';
+}
+
+/* stats */
+function barChart(items, { fmt = fmtTotal, labelEvery = 1, tip } = {}) {
+  const max = Math.max(1, ...items.map(i => i.v));
+  const peak = items.reduce((a, b, i) => b.v > items[a].v ? i : a, 0);
+  return `<div class="bc">${items.map((it, i) => `<div class="bc-col" data-tip="${esc(tip ? tip(it) : `${it.label}\n${fmt(it.v)}`)}">${i === peak && it.v ? `<span class="bc-v" style="bottom:${it.v / max * 100}%">${fmt(it.v)}</span>` : ''}<div class="bc-bar" style="block-size:${(it.v / max * 100).toFixed(2)}%"></div></div>`).join('')}</div>
+    <div class="bc-x">${items.map((it, i) => `<span>${i % labelEvery === 0 ? esc(it.short ?? it.label) : ''}</span>`).join('')}</div>`;
+}
+function renderStats() {
+  const L = S.filtered;
+  if (!L.length) { viewEl.innerHTML = '<div class="empty"><h2>אין נתונים לסינון הזה</h2></div>'; return; }
+  const tot = L.reduce((a, r) => a + (r.dur || 0), 0);
+  const longest = L.reduce((a, r) => r.dur > a.dur ? r : a, L[0]);
+  const agg = dayAgg(L); let bestDay = null; for (const [k, a] of agg) if (!bestDay || a.s > bestDay[1].s) bestDay = [k, a];
+  const span = Math.max(1, Math.round((Math.max(...L.map(r => r.ts)) - Math.min(...L.map(r => r.ts))) / 864e5) + 1);
+  const months = new Map(); for (const r of L) { const m = months.get(r._.mk) || { v: 0, n: 0 }; m.v += r.dur || 0; m.n++; months.set(r._.mk, m); }
+  const monItems = [...months.entries()].sort().map(([k, m]) => ({ label: `${HE_MON[+k.slice(5) - 1]} ${k.slice(0, 4)}`, short: HE_MON_S[+k.slice(5) - 1], v: m.v, n: m.n }));
+  const hours = Array.from({ length: 24 }, (_, i) => ({ label: `${pad(i)}:00–${pad((i + 1) % 24)}:00`, short: pad(i), v: 0, n: 0 }));
+  const wds = HE_WD.map((d, i) => ({ label: `יום ${d}`, short: HE_WD_S[i], v: 0, n: 0 }));
+  const buckets = [['עד 10 שנ׳', 10], ['10–60 שנ׳', 60], ['1–5 דק׳', 300], ['5–15 דק׳', 900], ['15–30 דק׳', 1800], ['מעל 30 דק׳', Infinity]].map(([l, mx]) => ({ label: l, mx, v: 0, s: 0 }));
+  for (const r of L) { hours[r._.hour].v += r.dur || 0; hours[r._.hour].n++; wds[r._.wd].v += r.dur || 0; wds[r._.wd].n++; const b = buckets.find(b => r.dur < b.mx); b.v++; b.s += r.dur || 0; }
+  const { list: ppl } = peopleAgg(L); ppl.sort((a, b) => b.s - a.s); const top = ppl.slice(0, 12); const topMax = Math.max(1, top[0]?.s || 1);
+  const ai = L.filter(r => r.sum).length;
+  viewEl.innerHTML = `<div class="stats">
+    <div class="kpis">
+      <div class="kpi"><div class="v">${nf(L.length)}</div><div class="l">שיחות</div><div class="s">${nf(ppl.length)} אנשי קשר</div></div>
+      <div class="kpi"><div class="v">${fmtHours(tot)}</div><div class="l">שעות שיחה</div><div class="s">בממוצע ${fmtTotal(tot / span)} ביום</div></div>
+      <div class="kpi"><div class="v">${fmtDur(tot / L.length)}</div><div class="l">אורך שיחה ממוצע</div><div class="s">חציון ${fmtDur(L.map(r => r.dur).sort((a, b) => a - b)[Math.floor(L.length / 2)])}</div></div>
+      <div class="kpi"><div class="v">${fmtDur(longest.dur)}</div><div class="l">השיחה הארוכה ביותר</div><button class="s" data-longest="${longest.id}">${esc(longest._.who)}, ${fmtDateShort(longest.ts)}</button></div>
+      <div class="kpi"><div class="v">${fmtTotal(bestDay[1].s)}</div><div class="l">היום העמוס ביותר</div><button class="s" data-day="${bestDay[0]}" data-goday="1">${fmtDateShort(dkeyToTs(bestDay[0]))}, ${bestDay[1].n} שיחות</button></div>
+      <div class="kpi"><div class="v">${nf(ai)}</div><div class="l">שיחות מסוכמות ב-AI</div><div class="s">${L.length ? Math.round(ai / L.length * 100) : 0}% מהשיחות</div></div>
+    </div>
+    <div class="charts">
+      <div class="panel span2"><h3>זמן שיחה לפי חודש</h3><div class="ps">סה״כ דקות שיחה בכל חודש</div>${barChart(monItems, { tip: it => `${it.label}\n${fmtTotal(it.v)}, ${nf(it.n)} שיחות` })}</div>
+      <div class="panel"><h3>לפי שעה ביום</h3><div class="ps">מתי אתה מדבר הכי הרבה</div>${barChart(hours, { labelEvery: 3, tip: it => `${it.label}\n${fmtTotal(it.v)}, ${nf(it.n)} שיחות` })}</div>
+      <div class="panel"><h3>לפי יום בשבוע</h3><div class="ps">סה״כ זמן שיחה בכל יום</div>${barChart(wds, { tip: it => `${it.label}\n${fmtTotal(it.v)}, ${nf(it.n)} שיחות` })}</div>
+      <div class="panel"><h3>אנשי הקשר המובילים</h3><div class="ps">לפי זמן שיחה כולל. לחץ כדי לפתוח</div><div class="hb">${top.map(c => `<div class="hb-r" data-person="${esc(c.who)}" data-tip="${esc(c.who)}\n${nf(c.n)} שיחות, ${fmtTotal(c.s)}"><span class="n">${esc(c.who)}</span><span><i class="b" style="display:block;inline-size:${(c.s / topMax * 100).toFixed(1)}%"></i></span><span class="v">${fmtTotal(c.s)}</span></div>`).join('')}</div></div>
+      <div class="panel"><h3>אורך השיחות</h3><div class="ps">כמה שיחות בכל טווח משך</div>${barChart(buckets, { fmt: v => nf(v) + ' שיחות', tip: it => `${it.label}\n${nf(it.v)} שיחות, ${fmtTotal(it.s)}` })}</div>
+    </div></div>`;
+  $$('[data-goday]', viewEl).forEach(b => b.addEventListener('click', ev => { ev.stopPropagation(); S.calDay = b.dataset.day; const d = new Date(dkeyToTs(S.calDay)); S.calMonth = new Date(d.getFullYear(), d.getMonth(), 1).getTime(); setView('calendar'); }));
+}
+
+/* ---------- aside: recording ---------- */
+function openRec(id) { S.aside = { type: 'rec', id }; renderAside(); $$('.row.sel').forEach(el => el.classList.remove('sel')); $$(`.row[data-id="${id}"]`).forEach(el => el.classList.add('sel')); }
+function openContact(who) { S.aside = { type: 'contact', who }; renderAside(); }
+function closeAside() { S.aside = null; renderAside(); $$('.row.sel').forEach(el => el.classList.remove('sel')); }
+function renderAside() {
+  const el = $('#aside'), a = S.aside;
+  if (!a) { app.classList.remove('has-aside'); el.innerHTML = ''; return; }
+  app.classList.add('has-aside');
+  const ae = document.activeElement, aid = ae && el.contains(ae) ? ae.id : null;
+  const sel = aid ? [ae.selectionStart, ae.selectionEnd] : null;
+  const akey = a.type + ':' + (a.id || a.who), st = el.dataset.k === akey ? el.scrollTop : 0; el.dataset.k = akey;
+  if (a.type === 'rec') { const r = S.byId.get(a.id); if (!r) return closeAside(); el.innerHTML = recAsideHTML(r); }
+  else el.innerHTML = contactAsideHTML(a.who);
+  el.scrollTop = st;
+  if (aid) { const n = document.getElementById(aid); if (n) { n.focus({ preventScroll: true }); try { n.setSelectionRange(sel[0], sel[1]); } catch { } } }
+  highlightSeg(true);
+}
+function recAsideHTML(r) {
+  const d = r._, busy = S.busy.get(r.id), err = S.errors.get(r.id) || r.err;
+  const f = S.folders.get(r.folderId);
+  const sm = r.sum;
+  const others = S.recs.filter(x => x._.who === d.who && x.id !== r.id).slice(0, 6);
+  const allN = S.recs.filter(x => x._.who === d.who).length;
+  const spk = new Map(); (r.tr?.segs || []).forEach(s => { if (s.sp && !spk.has(s.sp)) spk.set(s.sp, spk.size + 1); });
+  const trq = norm($('#trq')?.value || '');
+  return `<div class="as">
+    <div class="as-head"><span class="av lg" style="--hue:${d.hue}">${initial(d.who, d.isTel)}</span>
+      <div class="as-title"><h2>${esc(d.who)}</h2><div class="as-sub">${esc(d.isTel ? 'מספר שלא נשמר באנשי הקשר' : (d.phone || (r.contactRaw !== d.who ? 'בקובץ: ' + r.contactRaw : '')))}</div></div>
+      <button class="ib" data-a="rename" title="שינוי שם איש הקשר">${I.edit}</button>
+      <button class="ib" data-a="close" title="סגירה (Esc)">${I.x}</button></div>
+    <div class="as-meta"><div><span>תאריך</span><b>${fmtDayLong(r.ts, true)}</b></div><div><span>שעה</span><b class="num">${fmtTime(r.ts)}</b></div><div><span>משך</span><b class="num">${fmtDur(r.dur)}</b></div></div>
+    <div class="as-actions">
+      <button class="btn primary" data-a="play">${P.rec?.id === r.id && !P.audio.paused ? I.pause + 'השהיה' : I.play + 'ניגון'}</button>
+      ${busy ? `<button class="btn ai" disabled><span class="spin"></span>${esc(busy)}</button><button class="btn sm" data-a="cancel">ביטול</button>` : `
+      <button class="btn ai" data-a="both">${I.ai}${r.tr && r.sum ? 'עדכון' : r.tr ? 'סיכום' : 'תמלול וסיכום'}</button>`}
+      <button class="ib star${r.star ? ' on' : ''}" data-a="star" title="מועדף">${I.star}</button>
+      <button class="ib" data-a="dl" title="הורדת הקובץ">${I.dl}</button>
+      <button class="ib" data-a="person" title="כל השיחות עם ${esc(d.who)}">${I.people}</button>
+    </div>
+    ${err ? `<div style="padding:0 16px"><div class="ai-err">${esc(err)}</div></div>` : ''}
+    <section class="as-sec"><div class="sec-h"><h3>סיכום</h3><span class="grow"></span>${sm ? `<button class="btn sm link" data-a="resum" ${busy ? 'disabled' : ''}>סיכום מחדש</button>` : ''}</div>
+      ${sm ? `<div class="sum-t">${hl(sm.title)}</div><p class="sum-p">${hl(sm.summary)}</p>
+        ${sm.points?.length ? `<div class="sum-k">נקודות עיקריות</div><ul class="sum-l">${sm.points.map(p => `<li>${hl(p)}</li>`).join('')}</ul>` : ''}
+        ${sm.actions?.length ? `<div class="sum-k">משימות וסיכומים</div><ul class="sum-l">${sm.actions.map(p => `<li>${hl(p)}</li>`).join('')}</ul>` : ''}
+        ${sm.dates?.length ? `<div class="sum-k">מועדים וסכומים שהוזכרו</div><ul class="sum-l">${sm.dates.map(p => `<li>${hl(p)}</li>`).join('')}</ul>` : ''}
+        <div class="tags" style="margin-top:8px">${sm.sentiment ? `<span class="senti">אווירה: ${esc(sm.sentiment)}</span>` : ''}${(sm.tags || []).map(t => `<button class="tag ai" data-a="tagf" data-tag="${esc(t)}" title="הצג שיחות עם התגית">${esc(t)}</button>`).join('')}</div>`
+      : `<div class="ai-empty">${r.tr ? 'יש תמלול. אפשר ליצור ממנו סיכום עם נקודות עיקריות ומשימות.' : 'עוד אין תמלול לשיחה הזו. בלחיצה אחת ה-AI יתמלל אותה ויכין סיכום, נקודות עיקריות ומשימות.'}
+        ${busy ? '' : `<button class="btn ai sm" data-a="${r.tr ? 'sum' : 'both'}">${I.ai}${r.tr ? 'יצירת סיכום' : 'תמלול וסיכום'}</button>`}</div>`}
+    </section>
+    <section class="as-sec"><div class="sec-h"><h3>תמלול</h3><span class="grow"></span>
+      ${r.tr ? `<input class="inp" id="trq" placeholder="חיפוש בתמלול" style="inline-size:130px;block-size:28px;font-size:12px" value="${esc($('#trq')?.value || '')}">
+      <button class="ib sm" data-a="copy" title="העתקת התמלול">${I.copy}</button>` : ''}</div>
+      ${r.tr ? (r.tr.segs.length ? `<div class="tr-list" id="trList">${r.tr.segs.map((s, i) => { const m = trq && !norm(s.t).includes(trq); return m ? '' : `<div class="seg-r" data-i="${i}"><button class="ts" data-a="seek" data-s="${s.s ?? ''}" ${s.s == null ? 'disabled' : ''}>${s.s == null ? '' : fmtDur(s.s)}</button><div>${s.sp ? `<span class="sp s${spk.get(s.sp) || 0}">${esc(s.sp)}</span>` : ''}${trq ? esc(s.t).replace(new RegExp(trq.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), m => `<mark>${m}</mark>`) : hl(s.t)}</div></div>`; }).join('')}</div>` : '<p class="note">לא זוהה דיבור בהקלטה.</p>')
+        + `<div class="tr-meta">תומלל ב-${esc(STT_PROV[r.tr.provider]?.label || r.tr.provider)} (${esc(r.tr.model)}), ${fmtDateShort(r.tr.at)}. <button class="btn link sm" data-a="retr" ${busy ? 'disabled' : ''}>תמלול מחדש</button></div>`
+        : `<div class="ai-empty">אין תמלול עדיין.${busy ? '' : `<button class="btn ai sm" data-a="tr">${I.ai}תמלול בלבד</button>`}</div>`}
+    </section>
+    <section class="as-sec"><div class="sec-h"><h3>הערות ותגיות</h3></div>
+      <div class="tags" style="margin-bottom:8px">${(r.tags || []).map(t => `<span class="tag">${esc(t)}<button data-a="rmtag" data-tag="${esc(t)}" title="הסרה">${I.x}</button></span>`).join('')}<input class="inp tag-in" id="tagIn" list="dlTags" placeholder="+ תגית"><datalist id="dlTags">${S.tagsAll.slice(0, 200).map(t => `<option value="${esc(t)}">`).join('')}</datalist></div>
+      <textarea class="inp" id="noteIn" rows="3" placeholder="הערה אישית על השיחה">${esc(r.note || '')}</textarea>
+    </section>
+    <section class="as-sec"><div class="sec-h"><h3>שאלה על השיחה</h3></div>
+      <div class="ask-row"><input class="inp" id="askIn" placeholder="${r.tr ? 'למשל: מה סוכם לגבי התשלום?' : 'קודם צריך תמלול'}" ${r.tr ? '' : 'disabled'}><button class="btn ai" data-a="ask" ${r.tr ? '' : 'disabled'}>${I.send}</button></div>
+      <div class="answer" id="askOut"></div>
+    </section>
+    ${others.length ? `<section class="as-sec"><div class="sec-h"><h3>שיחות נוספות עם ${esc(d.who)}</h3><span class="grow"></span><button class="btn link sm" data-a="person">כל ה-${nf(allN)}</button></div><div class="mini-rows">${others.map(o => rowHTML(o, true)).join('')}</div></section>` : ''}
+    <div class="as-file">קובץ: <bdi dir="ltr">${esc(r.name)}</bdi><br>תיקייה: <bdi>${esc(f?.name || '—')}${r.path?.length ? ' / ' + esc(r.path.join(' / ')) : ''}</bdi><br>גודל: <bdi dir="ltr">${fmtBytes(r.size)}${r.fmt === 'ima' ? ', WAV IMA-ADPCM 8kHz' : r.fmt ? ', ' + esc(r.fmt.toUpperCase()) : ''}</bdi></div>
+  </div>`;
+}
+function contactAsideHTML(who) {
+  const recs = S.recs.filter(r => r._.who === who);
+  if (!recs.length) return '<div class="empty"><h2>אין שיחות</h2></div>';
+  const c0 = recs[0]._, tot = recs.reduce((a, r) => a + (r.dur || 0), 0), first = recs.at(-1).ts, last = recs[0].ts;
+  const cks = [...new Set(recs.map(r => r._.ck))];
+  const phones = [...new Set(recs.map(r => r._.phone).filter(Boolean))];
+  const months = [...new Set(S.recs.map(r => r._.mk))].sort();
+  const mv = months.map(m => recs.filter(r => r._.mk === m).reduce((a, r) => a + r.dur, 0)); const mmax = Math.max(1, ...mv);
+  const sums = recs.filter(r => r.sum).length, todo = recs.filter(r => !r.sum).length;
+  return `<div class="as">
+    <div class="as-head"><span class="av lg" style="--hue:${hueOf(who)}">${initial(who, c0.isTel)}</span>
+      <div class="as-title"><h2>${esc(who)}</h2><div class="as-sub">${esc(phones.join(', ') || (cks.length > 1 ? `${cks.length} שמות/מספרים מאוחדים` : ''))}</div></div>
+      <button class="ib" data-a="crename" title="שינוי שם / איחוד אנשי קשר">${I.edit}</button>
+      <button class="ib" data-a="close" title="סגירה">${I.x}</button></div>
+    <div class="cstats"><div><span>שיחות</span><b>${nf(recs.length)}</b></div><div><span>זמן שיחה כולל</span><b>${fmtTotal(tot)}</b></div><div><span>ממוצע לשיחה</span><b>${fmtDur(tot / recs.length)}</b></div><div><span>שיחה אחרונה</span><b>${relDay(last)}</b></div></div>
+    <div class="as-actions">
+      <button class="btn primary" data-a="cfilter">${I.list}הצג את כל השיחות</button>
+      <button class="btn ai" data-a="cask">${I.ai}שאלה על השיחות</button>
+      ${todo ? `<button class="btn ai" data-a="cbatch">${I.ai}סיכום ${nf(todo)} שיחות</button>` : ''}
+    </div>
+    <section class="as-sec"><h3>זמן שיחה לפי חודש</h3>
+      <div class="cmon">${mv.map((v, i) => `<i style="block-size:${(v / mmax * 100).toFixed(1)}%" data-tip="${HE_MON[+months[i].slice(5) - 1]} ${months[i].slice(0, 4)}\n${fmtTotal(v)}"></i>`).join('')}</div>
+      <div class="cmon-x">${months.map(m => `<span>${HE_MON_S[+m.slice(5) - 1]}</span>`).join('')}</div>
+      <p class="note" style="margin:10px 0 0">שיחה ראשונה ${fmtDateShort(first)}. ${sums ? `${nf(sums)} שיחות מסוכמות.` : ''}</p>
+    </section>
+    <section class="as-sec"><div class="sec-h"><h3>שיחות אחרונות</h3></div><div class="mini-rows">${recs.slice(0, 25).map(o => rowHTML(o, true)).join('')}</div></section>
+  </div>`;
+}
+const asideEl = $('#aside');
+asideEl.addEventListener('click', async e => {
+  const t = e.target, a = t.closest('[data-a]')?.dataset.a;
+  const row = t.closest('.row[data-id]');
+  if (row) { const id = row.dataset.id; const act = t.closest('[data-act]')?.dataset.act; if (act === 'play') togglePlay(id); else if (act === 'star') toggleStar(id); else openRec(id); return; }
+  if (!a) return;
+  const A = S.aside;
+  if (a === 'close') { closeAside(); return; }
+  if (A?.type === 'contact') {
+    const who = A.who, recs = S.recs.filter(r => r._.who === who);
+    if (a === 'crename') renameDialog(who);
+    if (a === 'cfilter') { S.f = { ...defaultFilter(), contacts: [who] }; qInput.value = ''; if (S.view !== 'list') setView('list'); refresh(true); }
+    if (a === 'cask') openAsk(recs, `השיחות עם ${who}`);
+    if (a === 'cbatch') startBatch(recs);
+    return;
+  }
+  const r = S.byId.get(A.id); if (!r) return;
+  if (a === 'play') togglePlay(r.id);
+  else if (a === 'star') toggleStar(r.id);
+  else if (a === 'rename') renameDialog(r._.who);
+  else if (a === 'person') openContact(r._.who);
+  else if (a === 'dl') { try { const f = await fileFor(r); downloadBlob(f, r.name); } catch (err) { showErr(err); } }
+  else if (a === 'both' || a === 'sum' || a === 'resum') runOne(r, r.tr ? 'sum' : 'both');
+  else if (a === 'tr' || a === 'retr') runOne(r, 'tr');
+  else if (a === 'cancel') { S.ctrl.get(r.id)?.abort(); }
+  else if (a === 'seek') { const s = +t.closest('[data-s]').dataset.s; if (P.rec?.id !== r.id) await play(r.id, s); else { P.audio.currentTime = s; if (P.audio.paused) P.audio.play(); } }
+  else if (a === 'copy') { const txt = r.tr.segs.map(s => `${s.s != null ? '[' + fmtDur(s.s) + '] ' : ''}${s.sp ? s.sp + ': ' : ''}${s.t}`).join('\n'); try { await navigator.clipboard.writeText(txt); toast('התמלול הועתק'); } catch { toast('ההעתקה נכשלה', 'err'); } }
+  else if (a === 'rmtag') { r.tags = (r.tags || []).filter(x => x !== t.closest('[data-tag]').dataset.tag); await saveRec(r); rebuildIndexes(); renderAside(); }
+  else if (a === 'tagf') { S.f = { ...defaultFilter(), tag: t.closest('[data-tag]').dataset.tag }; S.moreOpen = true; qInput.value = ''; if (S.view !== 'list') setView('list'); refresh(true); }
+  else if (a === 'ask') askOne(r);
+});
+asideEl.addEventListener('input', e => {
+  const A = S.aside; if (A?.type !== 'rec') return; const r = S.byId.get(A.id);
+  if (e.target.id === 'noteIn') { r.note = e.target.value; saveRecSoon(r); }
+  if (e.target.id === 'trq') { const v = e.target.value; renderAside(); const n = $('#trq'); if (n) { n.value = v; n.focus(); n.setSelectionRange(v.length, v.length); } }
+});
+asideEl.addEventListener('keydown', async e => {
+  const A = S.aside; if (A?.type !== 'rec') return; const r = S.byId.get(A.id);
+  if (e.target.id === 'tagIn' && e.key === 'Enter') { const v = e.target.value.trim().replace(/^#/, ''); if (!v) return; r.tags = [...new Set([...(r.tags || []), v])]; await saveRec(r); rebuildIndexes(); renderAside(); $('#tagIn')?.focus(); }
+  if (e.target.id === 'askIn' && e.key === 'Enter') askOne(r);
+});
+async function askOne(r) {
+  const inp = $('#askIn'), out = $('#askOut'); const q = inp?.value.trim(); if (!q) return;
+  out.innerHTML = '<span class="spin"></span> חושב…';
+  try { const { ans } = await askAbout([r], q); out.innerHTML = mdLite(ans); } catch (err) { out.innerHTML = ''; showErr(err); }
+}
+
+/* ---------- star, rename ---------- */
+async function toggleStar(id) { const r = S.byId.get(id); r.star = !r.star; await saveRec(r); updateRow(id); if (S.aside?.id === id) renderAside(); }
+function renameDialog(who) {
+  const cks = [...new Set(S.recs.filter(r => r._.who === who).map(r => r._.ck))];
+  const nat = cks.map(naturalName);
+  const m = modal({
+    title: 'שינוי שם איש קשר', body: `<div class="fld"><label for="rnIn">השם שיוצג</label><input class="inp" id="rnIn" list="dlRn" value="${esc(who)}" autofocus><datalist id="dlRn">${S.contacts.filter(c => !c.isTel && c.who !== who).slice(0, 500).map(c => `<option value="${esc(c.who)}">`).join('')}</datalist>
+      <span class="hint">בחירת שם של איש קשר קיים תאחד את השיחות של שניהם. השם בקובץ: ${esc(nat.join(', '))}.</span></div>`,
+    actions: [{ label: 'שמירה', cls: 'primary', onClick: c => { const v = $('#rnIn').value.trim(); if (!v) return; doRename(cks, v, who); c(); } },
+    ...(cks.some(k => S.aliases[k]) ? [{ label: 'חזרה לשם המקורי', onClick: c => { doRename(cks, null, who); c(); } }] : []), { label: 'ביטול' }],
+  });
+  $('#rnIn', m.el).addEventListener('keydown', e => { if (e.key === 'Enter') $('.m-foot .btn.primary', m.el).click(); });
+}
+function doRename(cks, name, oldWho) {
+  for (const k of cks) { if (!name || name === naturalName(k)) delete S.aliases[k]; else S.aliases[k] = name; }
+  saveAliases(); reprepAll();
+  const newWho = name || naturalName(cks[0]);
+  S.f.contacts = S.f.contacts.map(c => c === oldWho ? newWho : c);
+  if (S.aside?.type === 'contact') S.aside.who = newWho;
+  refresh(); renderAside();
+  toast(name ? `השם עודכן ל"${name}"` : 'השם המקורי הוחזר');
+}
+
+/* ---------- AI jobs ---------- */
+S.ctrl = new Map();
+async function runOne(r, mode) {
+  if (S.busy.has(r.id)) return;
+  const ctrl = new AbortController(); S.ctrl.set(r.id, ctrl);
+  const step = s => { S.busy.set(r.id, s); updateRow(r.id); if (S.aside?.id === r.id) renderAside(); };
+  S.errors.delete(r.id);
+  try {
+    if (mode === 'tr') await transcribeRec(r, { signal: ctrl.signal, onStep: step });
+    else await summarizeRec(r, { signal: ctrl.signal, onStep: step });
+    if (mode === 'both' && !r.sum) await summarizeRec(r, { signal: ctrl.signal, onStep: step });
+  } catch (e) {
+    if (e.name !== 'AbortError') { if (e.code === 'nokey' || e.code === 'perm' || e.code === 'resync') showErr(e); else S.errors.set(r.id, e.message); }
+    S.busy.delete(r.id); S.ctrl.delete(r.id); updateRow(r.id); if (S.aside?.id === r.id) renderAside();
+    return false;
+  }
+  S.busy.delete(r.id); S.ctrl.delete(r.id); rebuildIndexes(); updateRow(r.id); if (S.aside?.id === r.id) renderAside(); renderResbar();
+  return true;
+}
+const Jobs = { running: false, stop: false, done: 0, fail: 0, total: 0, lastErr: '' };
+async function startBatch(recs) {
+  if (Jobs.running) { toast('כבר רץ עיבוד. אפשר לעצור אותו בחלונית למטה.'); return; }
+  const min = +S.settings.batchMinSec || 0;
+  const todo = recs.filter(r => !r.sum && (r.dur || 0) >= min);
+  const skipped = recs.filter(r => !r.sum).length - todo.length;
+  if (!todo.length) { toast(skipped ? `כל השיחות שנשארו קצרות מ-${min} שניות` : 'כל השיחות כבר מסוכמות'); return; }
+  const sec = todo.reduce((a, r) => a + (todo.length && !r.tr ? r.dur : 0), 0);
+  try { needKey(STT_PROV[S.settings.sttProvider].key); needKey(LLM_PROV[S.settings.llmProvider].key); } catch (e) { showErr(e); return; }
+  const ok = await confirmBox('תמלול וסיכום', `יתומללו ויסוכמו <b>${nf(todo.length)}</b> שיחות (${fmtTotal(sec)} אודיו לתמלול)${skipped ? `, בלי ${nf(skipped)} שיחות קצרות מ-${min} שניות` : ''}.<br>תמלול: ${esc(STT_PROV[S.settings.sttProvider].label)}. סיכום: ${esc(LLM_PROV[S.settings.llmProvider].label)}.<br><span class="note">הפעולה משתמשת במפתחות ה-API שלך ועשויה לעלות כסף אצל הספק. אפשר לעצור בכל רגע.</span>`, 'התחלה');
+  if (!ok) return;
+  Object.assign(Jobs, { running: true, stop: false, done: 0, fail: 0, total: todo.length, lastErr: '' });
+  renderJobs();
+  const queue = todo.slice(); const conc = clamp(+S.settings.concurrency || 2, 1, 6);
+  const worker = async () => {
+    while (queue.length && !Jobs.stop) {
+      const r = queue.shift();
+      const ok = await runOne(r, 'both');
+      if (ok) Jobs.done++; else { Jobs.fail++; Jobs.lastErr = S.errors.get(r.id) || ''; if (/המפתח נדחה|חסר מפתח/.test(Jobs.lastErr) || Jobs.fail >= 8 && Jobs.done === 0) Jobs.stop = true; if (/429/.test(Jobs.lastErr)) await sleep(15000); }
+      renderJobs();
+    }
+  };
+  await Promise.all(Array.from({ length: conc }, worker));
+  Jobs.running = false; renderJobs();
+  toast(`הסתיים: ${nf(Jobs.done)} שיחות סוכמו${Jobs.fail ? `, ${nf(Jobs.fail)} נכשלו` : ''}`, Jobs.fail && !Jobs.done ? 'err' : '');
+  rebuildIndexes(); renderFilters();
+}
+function renderJobs() {
+  const el = $('#jobs');
+  if (!Jobs.running && !Jobs.total) { el.hidden = true; return; }
+  el.hidden = false;
+  const pct = Jobs.total ? (Jobs.done + Jobs.fail) / Jobs.total * 100 : 0;
+  el.innerHTML = `<div class="j-h">${Jobs.running ? '<span class="spin" style="color:var(--brass)"></span>' : ''}<b>${Jobs.running ? (Jobs.stop ? 'עוצר…' : 'תמלול וסיכום') : 'העיבוד הסתיים'}</b><span class="num">${nf(Jobs.done + Jobs.fail)} / ${nf(Jobs.total)}</span><span class="grow" style="flex:1"></span>${Jobs.running ? '<button class="btn sm" id="jStop">עצירה</button>' : '<button class="ib sm" id="jClose" title="סגירה">' + I.x + '</button>'}</div>
+    <div class="prog"><i style="inline-size:${pct}%"></i></div>
+    <div class="j-t">${nf(Jobs.done)} הצליחו${Jobs.fail ? `, ${nf(Jobs.fail)} נכשלו` : ''}</div>${Jobs.lastErr ? `<div class="j-e">${esc(Jobs.lastErr.slice(0, 160))}</div>` : ''}`;
+  $('#jStop', el)?.addEventListener('click', () => { Jobs.stop = true; for (const c of S.ctrl.values()) c.abort(); renderJobs(); });
+  $('#jClose', el)?.addEventListener('click', () => { Jobs.total = 0; renderJobs(); });
+}
+function openAsk(recs, label) {
+  const withAI = recs.filter(r => r.sum || r.tr).length;
+  const m = modal({
+    title: 'שאלה על השיחות', wide: true,
+    body: `<p style="margin:0 0 10px">${esc(label)}: ${nf(recs.length)} שיחות, מתוכן <b>${nf(withAI)}</b> עם תמלול או סיכום. ה-AI עונה רק על סמך השיחות שכבר עובדו${withAI > 60 ? ' (נשלחות האחרונות שבהן, עד שמגיעים למגבלת האורך)' : ''}.</p>
+      ${withAI ? '' : `<div class="ai-err" style="color:var(--ink);background:var(--brass-soft)">עוד אין תמלולים לשיחות האלה. אפשר להפעיל "תמלול וסיכום" ואז לשאול.</div>`}
+      <div class="ask-row" style="margin-top:10px"><input class="inp" id="mAsk" placeholder="למשל: מה סיכמנו לגבי המחיר? על מה דיברנו בפעם האחרונה?" autofocus></div>
+      <div class="answer" id="mAns"></div>`,
+    actions: [{ label: 'שאלה', cls: 'primary', icon: I.ai, onClick: (c, b) => go(b) }, { label: 'סגירה' }],
+  });
+  const go = async b => {
+    const q = $('#mAsk', m.el).value.trim(); if (!q) return;
+    const out = $('#mAns', m.el); out.innerHTML = '<span class="spin"></span> קורא את השיחות וחושב…'; b && (b.disabled = true);
+    try { const r = await askAbout(recs, q); out.innerHTML = mdLite(r.ans) + `<p class="note">התשובה מבוססת על ${nf(r.used)} שיחות.</p>`; }
+    catch (err) { out.innerHTML = ''; showErr(err); } finally { b && (b.disabled = false); }
+  };
+  $('#mAsk', m.el).addEventListener('keydown', e => { if (e.key === 'Enter') go($('.m-foot .btn.primary', m.el)); });
+}
+
+/* ---------- export / backup ---------- */
+function exportCSV(recs) {
+  const rows = [['תאריך', 'שעה', 'יום', 'איש קשר', 'שם או מספר בקובץ', 'משך בשניות', 'משך', 'כותרת', 'תקציר', 'משימות', 'תגיות', 'הערה', 'מועדף', 'קובץ']];
+  for (const r of recs) rows.push([fmtDateShort(r.ts), fmtTime(r.ts), HE_WD[r._.wd], r._.who.replace(/\u200E/g, ''), r.contactRaw, Math.round(r.dur), fmtDur(r.dur), r.sum?.title || '', r.sum?.summary || '', (r.sum?.actions || []).join(' | '), tagsOf(r).join(', '), r.note || '', r.star ? 'כן' : '', r.name]);
+  const csv = '﻿' + rows.map(r => r.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
+  downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), `שיחות ${dkey(Date.now())}.csv`);
+}
+function exportBackup() {
+  const data = { app: 'call-archive', v: 1, at: Date.now(), aliases: S.aliases, settings: S.settings, folders: [...S.folders.values()].map(f => ({ id: f.id, name: f.name, added: f.added, lastSync: f.lastSync })), recs: S.recs.map(strip) };
+  downloadBlob(new Blob([JSON.stringify(data)], { type: 'application/json' }), `גיבוי ארכיון שיחות ${dkey(Date.now())}.json`);
+}
+async function importBackup(file) {
+  let data; try { data = JSON.parse(await file.text()); } catch { toast('הקובץ לא נקרא כגיבוי תקין', 'err'); return; }
+  if (data?.app !== 'call-archive' || !Array.isArray(data.recs)) { toast('זה לא קובץ גיבוי של ארכיון השיחות', 'err'); return; }
+  let added = 0, merged = 0; const put = [];
+  for (const b of data.recs) {
+    const ex = S.byKey.get(b.key);
+    if (ex) {
+      let ch = false;
+      if (!ex.tr && b.tr) { ex.tr = b.tr; ch = true; } if (!ex.sum && b.sum) { ex.sum = b.sum; ch = true; }
+      if (!ex.note && b.note) { ex.note = b.note; ch = true; } if (b.star && !ex.star) { ex.star = true; ch = true; }
+      if (b.tags?.length) { const t = [...new Set([...(ex.tags || []), ...b.tags])]; if (t.length !== (ex.tags || []).length) { ex.tags = t; ch = true; } }
+      if (ch) { merged++; put.push(strip(ex)); }
+    } else { const r = { ...b }; put.push(r); addRecs([r]); added++; }
+  }
+  for (const f of data.folders || []) if (!S.folders.has(f.id)) { const nf2 = { ...f, handle: null }; S.folders.set(f.id, nf2); await DB.put('folders', nf2); }
+  Object.assign(S.aliases, data.aliases || {}); saveAliases();
+  if (put.length) await DB.putMany('recs', put);
+  reprepAll(); refresh();
+  toast(`הגיבוי נטען: ${nf(added)} הקלטות נוספו, ${nf(merged)} עודכנו`);
+}
+$('#jsonInput').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f) importBackup(f); });
+
+/* ---------- import phone contacts (VCF / CSV) to name unknown numbers ---------- */
+function decodeQP(s) {
+  const bytes = []; s = s.replace(/=\r?\n/g, '');
+  for (let i = 0; i < s.length; i++) { if (s[i] === '=' && /^[0-9A-F]{2}$/i.test(s.substr(i + 1, 2))) { bytes.push(parseInt(s.substr(i + 1, 2), 16)); i += 2; } else bytes.push(s.charCodeAt(i) & 255); }
+  try { return new TextDecoder('utf-8').decode(new Uint8Array(bytes)); } catch { return s; }
+}
+function parseVCF(text) {
+  const out = []; text = text.replace(/\r\n[ \t]/g, '').replace(/=\r?\n/g, '=\n');
+  for (const card of text.split(/BEGIN:VCARD/i).slice(1)) {
+    const lines = card.replace(/=\n/g, '').split(/\r?\n/);
+    let name = '', n = '', tels = [];
+    for (const l of lines) {
+      const i = l.indexOf(':'); if (i < 0) continue;
+      const k = l.slice(0, i).toUpperCase(); let v = l.slice(i + 1).trim();
+      if (/ENCODING=QUOTED-PRINTABLE/.test(k)) v = decodeQP(v);
+      if (k.startsWith('FN')) name = v;
+      else if (k === 'N' || k.startsWith('N;')) n = v.split(';').filter(Boolean).reverse().join(' ');
+      else if (k.startsWith('TEL') || /^ITEM\d+\.TEL/.test(k)) tels.push(v);
+    }
+    name = (name || n).replace(/\\,/g, ',').trim();
+    if (name && tels.length) out.push({ name, tels });
+  }
+  return out;
+}
+function parseCSV(text) {
+  const rows = []; let row = [], f = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; }
+    else if (c === '"') q = true; else if (c === ',') { row.push(f); f = ''; } else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(f); rows.push(row); row = []; f = ''; } else f += c;
+  }
+  if (f || row.length) { row.push(f); rows.push(row); }
+  if (rows.length < 2) return [];
+  const hd = rows[0].map(x => x.replace(/^﻿/, '').trim());
+  const nameCols = ['Name', 'Display Name', 'Full Name', 'שם', 'שם מלא'].map(x => hd.indexOf(x)).filter(i => i >= 0);
+  const fn = hd.findIndex(x => /^(first name|given name|שם פרטי)$/i.test(x)), mn = hd.findIndex(x => /^(middle name)$/i.test(x)), ln = hd.findIndex(x => /^(last name|family name|שם משפחה)$/i.test(x));
+  const telCols = hd.map((x, i) => (/phone|mobile|טלפון|נייד/i.test(x) && !/type|label|סוג/i.test(x)) ? i : -1).filter(i => i >= 0);
+  const out = [];
+  for (const r of rows.slice(1)) {
+    let name = nameCols.map(i => r[i]).find(Boolean) || [fn, mn, ln].filter(i => i >= 0).map(i => r[i]).filter(Boolean).join(' ');
+    const tels = telCols.flatMap(i => String(r[i] || '').split(/\s*:::\s*|[;\/]/)).filter(x => /\d{5,}/.test(x));
+    if (name?.trim() && tels.length) out.push({ name: name.trim(), tels });
+  }
+  return out;
+}
+async function importContacts(file) {
+  const text = await file.text();
+  const list = /BEGIN:VCARD/i.test(text) ? parseVCF(text) : parseCSV(text);
+  if (!list.length) { toast('לא נמצאו אנשי קשר עם מספרי טלפון בקובץ', 'err'); return; }
+  const telKeys = new Set(S.recs.map(r => r._.ck).filter(k => k.startsWith('tel:')));
+  let named = 0, calls = 0; const seen = new Set();
+  for (const c of list) for (const t of c.tels) {
+    const ck = contactKeyOf(t); if (!ck.startsWith('tel:') || seen.has(ck)) continue;
+    seen.add(ck);
+    if (telKeys.has(ck) && !S.aliases[ck]) { S.aliases[ck] = c.name; named++; calls += S.recs.filter(r => r._.ck === ck).length; }
+  }
+  saveAliases(); reprepAll(); refresh(); renderAside();
+  modal({ title: 'ייבוא אנשי קשר', body: `<p style="margin:0">נקראו ${nf(list.length)} אנשי קשר מהקובץ.</p><div class="sync-res"><div class="main"><b>${nf(named)}</b><span>מספרים קיבלו שם</span></div><div><b>${nf(calls)}</b><span>שיחות עודכנו</span></div></div><p class="note" style="margin-top:12px">מספרים שכבר נתת להם שם ידנית לא שונו. אפשר לשנות כל שם בלחיצה על העיפרון.</p>`, actions: [{ label: 'סגירה', cls: 'primary' }] });
+}
+function pickContactsFile() {
+  const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.vcf,.csv,text/vcard,text/csv';
+  inp.onchange = () => { const f = inp.files[0]; if (f) importContacts(f).catch(e => showErr(e)); };
+  inp.click();
+}
+
+/* =====================================================================
+   player
+   ===================================================================== */
+const P = { audio: $('#audio'), rec: null, entry: null, raf: 0, loading: false };
+const cv = $('#pCanvas');
+function setPlayIcon() {
+  const playing = P.rec && !P.audio.paused;
+  $('#pPlay').innerHTML = P.loading ? '<span class="spin"></span>' : playing ? I.pause : I.play;
+  $$('.row.playing').forEach(el => { if (el.dataset.id !== P.rec?.id) el.classList.remove('playing'); });
+  if (P.rec) $$(`.row[data-id="${P.rec.id}"]`).forEach(el => { el.classList.add('playing'); const b = $('[data-act="play"]', el); if (b) b.innerHTML = playing ? I.pause : I.play; });
+  $$('.row:not(.playing) [data-act="play"]').forEach(b => { b.innerHTML = I.play; });
+  const ab = $('#aside [data-a="play"]'); if (ab && S.aside?.id === P.rec?.id) ab.innerHTML = playing ? I.pause + 'השהיה' : I.play + 'ניגון';
+}
+async function play(id, from = 0) {
+  const r = S.byId.get(id); if (!r) return;
+  P.loading = true; P.rec = r; setPlayerInfo(); setPlayIcon();
+  try {
+    const e = await AudioCache.get(r);
+    if (P.rec !== r) return;
+    P.entry = e; P.audio.src = e.url; P.audio.playbackRate = S.settings.speed || 1;
+    await new Promise((res, rej) => { P.audio.onloadedmetadata = res; P.audio.onerror = () => rej(new Error('הדפדפן לא הצליח לנגן את הקובץ')); });
+    if (from) P.audio.currentTime = from;
+    P.loading = false;
+    await P.audio.play();
+  } catch (err) { P.loading = false; if (P.rec === r) { P.entry = null; } showErr(err); }
+  setPlayIcon(); drawWave(); setMedia();
+}
+function togglePlay(id) {
+  if (id && P.rec?.id !== id) return play(id);
+  if (!P.rec) { const first = S.filtered[0]; if (first) play(first.id); return; }
+  if (!P.entry) return play(P.rec.id);
+  P.audio.paused ? P.audio.play() : P.audio.pause();
+}
+function neighbor(dir) {
+  const L = S.filtered; if (!P.rec || !L.length) return null;
+  const i = L.findIndex(r => r.id === P.rec.id);
+  if (i < 0) return L[0];
+  return L[i + dir] || null;
+}
+function setPlayerInfo() {
+  const r = P.rec; const pl = $('#player');
+  if (!r) { pl.classList.add('idle'); return; }
+  pl.classList.remove('idle');
+  $('#pAv').style.setProperty('--hue', r._.hue); $('#pAv').innerHTML = initial(r._.who, r._.isTel);
+  $('#pWho').textContent = r._.who; $('#pWhen').textContent = `${fmtDayLong(r.ts)}, ${fmtTime(r.ts)}`;
+  $('#pDur').textContent = fmtDur(r.dur); $('#pCur').textContent = '0:00';
+}
+function setMedia() {
+  if (!('mediaSession' in navigator) || !P.rec) return;
+  try {
+    navigator.mediaSession.metadata = new MediaMetadata({ title: P.rec._.who, artist: `${fmtDayLong(P.rec.ts, true)} ${fmtTime(P.rec.ts)}`, album: 'ארכיון שיחות' });
+    navigator.mediaSession.setActionHandler('play', () => P.audio.play());
+    navigator.mediaSession.setActionHandler('pause', () => P.audio.pause());
+    navigator.mediaSession.setActionHandler('previoustrack', () => { const n = neighbor(-1); n && play(n.id); });
+    navigator.mediaSession.setActionHandler('nexttrack', () => { const n = neighbor(1); n && play(n.id); });
+    navigator.mediaSession.setActionHandler('seekbackward', () => { P.audio.currentTime -= 10; });
+    navigator.mediaSession.setActionHandler('seekforward', () => { P.audio.currentTime += 10; });
+  } catch { }
+}
+function drawWave(hoverX = null) {
+  const dpr = window.devicePixelRatio || 1, w = cv.clientWidth, hh = cv.clientHeight;
+  if (!w) return;
+  if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(hh * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(hh * dpr); }
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, hh);
+  const cs = getComputedStyle(document.documentElement);
+  const cOff = cs.getPropertyValue('--wave').trim(), cOn = cs.getPropertyValue('--wave-on').trim(), cHover = cs.getPropertyValue('--brass-2').trim();
+  const dur = P.audio.duration || P.entry?.dur || P.rec?.dur || 0, t = P.audio.currentTime || 0;
+  const prog = dur ? t / dur : 0;
+  const bw = 2, gap = 1, n = Math.floor(w / (bw + gap));
+  const pk = P.entry?.peaks;
+  for (let i = 0; i < n; i++) {
+    let v;
+    if (pk) { const a = Math.floor(i / n * pk.length), b = Math.max(a + 1, Math.floor((i + 1) / n * pk.length)); v = 0; for (let j = a; j < b; j++) if (pk[j] > v) v = pk[j]; }
+    else v = 0.12;
+    const bh = Math.max(2, v * (hh - 4)), x = i * (bw + gap);
+    ctx.fillStyle = (x + bw / 2) / w <= prog ? cOn : cOff;
+    ctx.fillRect(x, (hh - bh) / 2, bw, bh);
+  }
+  if (hoverX != null && dur) { ctx.fillStyle = cHover; ctx.fillRect(hoverX - 1, 0, 2, hh); }
+}
+function tick() {
+  if (!P.rec) return;
+  $('#pCur').textContent = fmtDur(P.audio.currentTime);
+  if (P.audio.duration && isFinite(P.audio.duration)) $('#pDur').textContent = fmtDur(P.audio.duration);
+  drawWave(P.hoverX ?? null); highlightSeg();
+  if (!P.audio.paused) P.raf = requestAnimationFrame(tick);
+}
+let lastSeg = -1;
+function highlightSeg(force) {
+  const list = $('#trList'); if (!list || !P.rec || S.aside?.id !== P.rec.id) { lastSeg = -1; return; }
+  const r = P.rec; const t = P.audio.currentTime; let idx = -1;
+  r.tr?.segs.forEach((s, i) => { if (s.s != null && s.s <= t + 0.25) idx = i; });
+  if (idx === lastSeg && !force) return; lastSeg = idx;
+  $$('.seg-r.on', list).forEach(e => e.classList.remove('on'));
+  const el = $(`.seg-r[data-i="${idx}"]`, list);
+  if (el) { el.classList.add('on'); if (S.settings.followTr && !P.audio.paused && !force) { const ar = $('#aside').getBoundingClientRect(), er = el.getBoundingClientRect(); if (er.top < ar.top + 90 || er.bottom > ar.bottom - 20) el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } }
+}
+P.audio.addEventListener('play', () => { setPlayIcon(); cancelAnimationFrame(P.raf); P.raf = requestAnimationFrame(tick); });
+P.audio.addEventListener('pause', () => { setPlayIcon(); tick(); });
+P.audio.addEventListener('seeked', tick);
+P.audio.addEventListener('ended', () => { setPlayIcon(); if (S.settings.autoNext) { const n = neighbor(1); if (n) play(n.id); } });
+$('#pPlay').onclick = () => togglePlay();
+$('#pBack').onclick = () => { P.audio.currentTime = Math.max(0, P.audio.currentTime - 10); tick(); };
+$('#pFwd').onclick = () => { P.audio.currentTime = Math.min(P.audio.duration || 0, P.audio.currentTime + 10); tick(); };
+$('#pPrev').onclick = () => { const n = neighbor(-1); if (n) play(n.id); };
+$('#pNext').onclick = () => { const n = neighbor(1); if (n) play(n.id); };
+$('#pInfo').onclick = () => { if (P.rec) openRec(P.rec.id); };
+const SPEEDS = [1, 1.25, 1.5, 1.75, 2, 0.75];
+function setSpeedLabel() { $('#pSpeed').textContent = (S.settings.speed || 1).toString().replace(/^0/, '') + '×'; }
+$('#pSpeed').onclick = () => { const i = SPEEDS.indexOf(S.settings.speed || 1); S.settings.speed = SPEEDS[(i + 1) % SPEEDS.length]; P.audio.playbackRate = S.settings.speed; setSpeedLabel(); saveSettings(); };
+$('#pAuto').onchange = e => { S.settings.autoNext = e.target.checked; saveSettings(); };
+cv.addEventListener('click', e => { const dur = P.audio.duration; if (!dur || !P.entry) return; const r = cv.getBoundingClientRect(); P.audio.currentTime = clamp((e.clientX - r.left) / r.width, 0, 1) * dur; tick(); });
+cv.addEventListener('mousemove', e => { const r = cv.getBoundingClientRect(); P.hoverX = e.clientX - r.left; const dur = P.audio.duration; cv.title = dur ? fmtDur(clamp(P.hoverX / r.width, 0, 1) * dur) : ''; drawWave(P.hoverX); });
+cv.addEventListener('mouseleave', () => { P.hoverX = null; drawWave(); });
+new ResizeObserver(() => drawWave()).observe(cv);
+
+/* =====================================================================
+   folders & sync UI
+   ===================================================================== */
+let syncing = false;
+async function addFolder() {
+  if (syncing) return;
+  if (hasFSA) {
+    let hnd;
+    try { hnd = await window.showDirectoryPicker({ id: 'call-recordings', mode: 'read' }); }
+    catch (e) {
+      if (e.name === 'AbortError') return;
+      console.warn('showDirectoryPicker failed, falling back', e);
+      modal({ title: 'בחירת תיקייה', body: '<p style="margin:0">הדפדפן לא אפשר בחירת תיקייה בשיטה הרגילה. אפשר לבחור אותה בשיטה החלופית. בשיטה הזו הדפדפן ישאל אם "להעלות" את הקבצים: זה רק אישור קריאה, שום דבר לא עולה לאינטרנט.</p>', actions: [{ label: 'בחירת תיקייה', cls: 'primary', onClick: c => { c(); $('#dirInput').click(); } }, { label: 'ביטול' }] });
+      return;
+    }
+    const f = await folderFromHandle(hnd);
+    await runSync([f]);
+  } else $('#dirInput').click();
+}
+$('#dirInput').addEventListener('change', async e => {
+  const files = [...e.target.files]; e.target.value = '';
+  if (!files.length) return;
+  const root = (files[0].webkitRelativePath || '').split('/')[0] || 'תיקייה';
+  const f = await folderForInput(root);
+  const items = files.filter(x => AUDIO_RE.test(x.name)).map(file => ({ file, name: file.name, path: (file.webkitRelativePath || '').split('/').slice(1, -1) }));
+  await runSync([f], new Map([[f.id, items]]));
+});
+async function requestAllPerms() {
+  let ok = 0;
+  for (const f of S.folders.values()) if (f.handle && await folderPerm(f, true) === 'granted') ok++;
+  renderBanner(); return ok;
+}
+async function syncAll() {
+  const fs = [...S.folders.values()];
+  if (!fs.length) return addFolder();
+  const withH = fs.filter(f => f.handle);
+  if (!withH.length) { openFolders(); return; }
+  for (const f of withH) await folderPerm(f, true);
+  await runSync(withH);
+}
+async function runSync(folders, preItems) {
+  if (syncing) return; syncing = true;
+  const m = modal({ title: 'סנכרון', body: '<div id="syP"><div id="syT">מתחיל…</div><div class="prog"><i id="syBar"></i></div><div class="note" id="syN"></div></div>' });
+  const T = $('#syT', m.el), B = $('#syBar', m.el), N = $('#syN', m.el);
+  const total = { found: 0, added: 0, dup: 0, relinked: 0, renamed: 0, empty: 0, failed: 0 };
+  const skipped = [];
+  try {
+    for (const f of folders) {
+      let items = preItems?.get(f.id);
+      if (!items) {
+        if (await folderPerm(f, true) !== 'granted') { skipped.push(f.name); continue; }
+        T.textContent = `סורק את "${f.name}"…`; items = [];
+        await walkHandle(f.handle, [], items, n => { N.textContent = `נמצאו ${nf(n)} קבצי שמע`; });
+      }
+      T.textContent = `מעבד את "${f.name}": ${nf(items.length)} קבצים`;
+      const st = await ingest(items, f, (done, all, s) => { B.style.inlineSize = (done / all * 100) + '%'; N.textContent = `${nf(done)} / ${nf(all)}, ${nf(s.added)} חדשות`; });
+      for (const k in total) total[k] += st[k];
+    }
+  } catch (e) { syncing = false; m.close(); showErr(e); return; }
+  syncing = false;
+  B.style.inlineSize = '100%';
+  m.body.innerHTML = `<p style="margin:0">${total.added ? 'הסנכרון הסתיים. ההקלטות החדשות נוספו לארכיון.' : 'הסנכרון הסתיים. לא נמצאו הקלטות חדשות.'}</p>
+    <div class="sync-res"><div class="main"><b>${nf(total.added)}</b><span>הקלטות חדשות</span></div><div><b>${nf(total.dup)}</b><span>כבר היו בארכיון</span></div>${total.renamed ? `<div><b>${nf(total.renamed)}</b><span>קיבלו שם איש קשר</span></div>` : ''}${total.empty ? `<div><b>${nf(total.empty)}</b><span>קבצים ריקים (דולגו)</span></div>` : ''}${total.failed ? `<div><b>${nf(total.failed)}</b><span>לא נקראו</span></div>` : ''}</div>
+    ${skipped.length ? `<p class="note">לא קיבלתי גישה לתיקיות: ${esc(skipped.join(', '))}</p>` : ''}
+    <p class="note" style="margin-top:12px">${folders.some(f => f.handle) ? 'בפעם הבאה מספיקה לחיצה על "סנכרון" כדי להוסיף הקלטות חדשות מאותה תיקייה.' : 'הדפדפן הזה לא זוכר את התיקייה, לכן בפעם הבאה בחר אותה שוב. כפילויות מזוהות אוטומטית.'}</p>`;
+  m.setActions([{ label: 'מעולה', cls: 'primary' }, { label: 'הוספת תיקייה נוספת', onClick: c => { c(); addFolder(); } }]);
+  afterDataChange();
+}
+function afterDataChange() {
+  if (!S.calMonth && S.recs.length) { const d = new Date(S.recs[0].ts); S.calMonth = new Date(d.getFullYear(), d.getMonth(), 1).getTime(); }
+  updateSyncBtn(); refresh(); renderBanner();
+}
+function updateSyncBtn() { $('#syncBtn span').textContent = S.folders.size ? 'סנכרון' : 'הוספת תיקייה'; }
+async function openFolders() {
+  const fs = [...S.folders.values()];
+  const rows = await Promise.all(fs.map(async f => {
+    const n = S.recs.filter(r => r.folderId === f.id).length;
+    const perm = f.handle ? await folderPerm(f, false) : 'none';
+    const status = !f.handle ? 'נבחרה בשיטה החלופית: לניגון צריך לבחור אותה שוב' : perm === 'granted' ? 'מחוברת' : 'צריך לאשר גישה מחדש';
+    return `<div class="folder"><span class="fi">${I.folder}</span><div><b>${esc(f.name)}</b><small>${nf(n)} הקלטות. סנכרון אחרון: ${f.lastSync ? fmtDateShort(f.lastSync) + ' ' + fmtTime(f.lastSync) : 'לא בוצע'}. ${status}</small></div>
+      <div class="acts">${f.handle ? `<button class="btn sm" data-fs="${f.id}">${I.sync}סנכרון</button>` : `<button class="btn sm" data-fpick="1">בחירה מחדש</button>`}<button class="ib sm" data-frm="${f.id}" title="הסרת התיקייה">${I.trash}</button></div></div>`;
+  }));
+  const m = modal({
+    title: 'תיקיות מסונכרנות', wide: true,
+    body: `${fs.length ? `<div class="folders">${rows.join('')}</div>` : '<p>עוד לא נוספו תיקיות.</p>'}
+      <p class="note">כל קובץ מזוהה לפי התאריך והשעה שבשם הקובץ ולפי הגודל שלו, כך שאותה הקלטה לא תיכנס פעמיים גם אם היא נמצאת בכמה תיקיות. אם איש קשר נשמר בטלפון אחרי ההקלטה, הסנכרון יעדכן את השם.</p>`,
+    actions: [{ label: 'הוספת תיקייה', cls: 'primary', icon: I.folder, onClick: c => { c(); addFolder(); } }, ...(fs.some(f => f.handle) ? [{ label: 'סנכרון הכל', icon: I.sync, onClick: c => { c(); syncAll(); } }] : []), 'grow', { label: 'סגירה' }],
+  });
+  m.body.addEventListener('click', async e => {
+    const s = e.target.closest('[data-fs]'), rm = e.target.closest('[data-frm]'), pk = e.target.closest('[data-fpick]');
+    if (s) { const f = S.folders.get(s.dataset.fs); m.close(); await folderPerm(f, true); runSync([f]); }
+    if (pk) { m.close(); addFolder(); }
+    if (rm) {
+      const f = S.folders.get(rm.dataset.frm); const n = S.recs.filter(r => r.folderId === f.id).length;
+      m.close();
+      const ok = await confirmBox('הסרת תיקייה', `להסיר את "${esc(f.name)}" ואת ${nf(n)} ההקלטות שלה מהארכיון? הקבצים עצמם במחשב לא יימחקו. תמלולים וסיכומים של ההקלטות האלה יימחקו מהארכיון.`, 'הסרה', 'danger');
+      if (!ok) return;
+      const ids = S.recs.filter(r => r.folderId === f.id).map(r => r.id);
+      await DB.delMany('recs', ids); await DB.del('folders', f.id); S.folders.delete(f.id);
+      const idset = new Set(ids); S.recs = S.recs.filter(r => !idset.has(r.id)); ids.forEach(id => { const r = S.byId.get(id); S.byId.delete(id); S.byKey.delete(r.key); S.sessionFiles.delete(id); });
+      if (S.aside?.id && idset.has(S.aside.id)) closeAside();
+      rebuildIndexes(); afterDataChange(); toast('התיקייה הוסרה');
+    }
+  });
+}
+$('#syncBtn').onclick = () => syncAll();
+$('#foldersBtn').onclick = () => openFolders();
+async function renderBanner() {
+  const el = $('#banner');
+  const need = [];
+  for (const f of S.folders.values()) if (f.handle && await folderPerm(f, false) !== 'granted') need.push(f.name);
+  const msgs = [];
+  if (need.length) msgs.push(`<div class="banner"><span class="grow">כדי לנגן ולתמלל, צריך לאשר שוב גישת קריאה לתיקייה ${esc(need.join(', '))}. זה אישור חד-פעמי לכל פתיחה של הדף.</span><button class="btn sm primary" id="bnPerm">אישור גישה</button></div>`);
+  if (DB.mem && S.recs.length) msgs.push('<div class="banner"><span class="grow">הדפדפן לא מאפשר שמירה מקומית, לכן הנתונים יימחקו כשתסגור את הדף. מומלץ לפתוח את הקובץ ב-Chrome או ב-Edge.</span></div>');
+  el.innerHTML = msgs.join('');
+  $('#bnPerm')?.addEventListener('click', async () => { const n = await requestAllPerms(); if (n) toast('הגישה אושרה'); });
+}
+
+/* drag & drop a folder */
+let dragDepth = 0, dropHint = null;
+window.addEventListener('dragenter', e => { if (![...(e.dataTransfer?.types || [])].includes('Files')) return; e.preventDefault(); dragDepth++; if (!dropHint) { dropHint = h('<div class="drop-hint"><div>שחרר כאן תיקיית הקלטות לסנכרון</div></div>'); document.body.append(dropHint); } });
+window.addEventListener('dragover', e => { if ([...(e.dataTransfer?.types || [])].includes('Files')) e.preventDefault(); });
+window.addEventListener('dragleave', () => { dragDepth = Math.max(0, dragDepth - 1); if (!dragDepth) { dropHint?.remove(); dropHint = null; } });
+window.addEventListener('drop', async e => {
+  e.preventDefault(); dragDepth = 0; dropHint?.remove(); dropHint = null;
+  const items = [...(e.dataTransfer?.items || [])].filter(i => i.kind === 'file');
+  const handles = [];
+  for (const it of items) { if (it.getAsFileSystemHandle) { try { const hnd = await it.getAsFileSystemHandle(); if (hnd) handles.push(hnd); } catch { } } }
+  const dirs = handles.filter(x => x.kind === 'directory');
+  if (dirs.length) { const fs = []; for (const d of dirs) fs.push(await folderFromHandle(d)); await runSync(fs); return; }
+  const files = [...(e.dataTransfer?.files || [])].filter(f => AUDIO_RE.test(f.name));
+  if (files.length) { const f = await folderForInput('קבצים שנגררו'); await runSync([f], new Map([[f.id, files.map(file => ({ file, name: file.name, path: [] }))]])); return; }
+  toast('גרור תיקייה עם קבצי הקלטה, או השתמש בכפתור הסנכרון');
+});
+
+/* =====================================================================
+   settings
+   ===================================================================== */
+function openSettings() {
+  const st = S.settings;
+  const provOpts = (map, v) => Object.entries(map).map(([k, x]) => `<option value="${k}"${k === v ? ' selected' : ''}>${esc(x.label)}</option>`).join('');
+  const body = h(`<div>
+    <div class="set-sec"><h3>תמלול וסיכום ב-AI</h3>
+      <div class="fld-row">
+        <div class="fld"><label for="sStt">ספק תמלול</label><select class="inp" id="sStt">${provOpts(STT_PROV, st.sttProvider)}</select></div>
+        <div class="fld"><label for="sSttM">מודל תמלול</label><select class="inp" id="sSttM"></select><input class="inp" id="sSttMX" dir="ltr" placeholder="שם המודל, למשל gemini-3.8-flash" hidden><span class="hint" id="sSttH"></span></div>
+      </div>
+      <div class="fld-row">
+        <div class="fld"><label for="sLlm">ספק לסיכומים ולשאלות</label><select class="inp" id="sLlm">${provOpts(LLM_PROV, st.llmProvider)}</select></div>
+        <div class="fld"><label for="sLlmM">מודל</label><select class="inp" id="sLlmM"></select><input class="inp" id="sLlmMX" dir="ltr" placeholder="שם המודל" hidden><span class="hint" id="sLlmH"></span></div>
+      </div>
+      <p class="note" style="margin-top:-4px">הכי פשוט להתחיל: מפתח Gemini אחד לשני השדות. לתמלול המדויק ביותר בעברית, עם הפרדת דוברים וזמנים מדויקים: ElevenLabs.</p>
+    </div>
+    <div class="set-sec"><h3>מפתחות API</h3>
+      <p class="note" style="margin:-6px 0 12px">המפתחות נשמרים רק בדפדפן הזה ולא נכללים בגיבוי. ההקלטות נשלחות ישירות לספק שבחרת, רק כשאתה מבקש תמלול.</p>
+      ${Object.entries(KEY_META).map(([k, m]) => `<div class="keyrow"><div class="lbl">${esc(m.label)}<a href="${m.url}" target="_blank" rel="noopener">להוצאת מפתח</a></div><input class="inp" type="password" data-key="${k}" value="${esc(S.keys[k] || '')}" dir="ltr" autocomplete="off" spellcheck="false" placeholder="${k === 'gemini' ? 'AIza…' : k === 'anthropic' ? 'sk-ant-…' : k === 'openai' ? 'sk-…' : k === 'groq' ? 'gsk_…' : ''}"><button class="btn sm" data-test="${k}" type="button">בדיקה</button><div class="st" data-st="${k}">${esc(m.hint)}</div></div>`).join('')}
+    </div>
+    <div class="set-sec"><h3>תצוגה וניגון</h3>
+      <div class="fld-row">
+        <div class="fld"><label for="sHide">הסתרת שיחות קצרות</label><select class="inp" id="sHide">${[[0, 'להציג הכל'], [3, 'קצרות מ-3 שניות'], [5, 'קצרות מ-5 שניות'], [10, 'קצרות מ-10 שניות'], [30, 'קצרות מ-30 שניות']].map(([v, l]) => `<option value="${v}"${+st.hideShort === v ? ' selected' : ''}>${l}</option>`).join('')}</select><span class="hint">שיחות שלא נענו או נותקו מיד</span></div>
+        <div class="fld"><label for="sTheme">ערכת צבעים</label><select class="inp" id="sTheme">${[['auto', 'לפי המערכת'], ['light', 'בהירה'], ['dark', 'כהה']].map(([v, l]) => `<option value="${v}"${st.theme === v ? ' selected' : ''}>${l}</option>`).join('')}</select></div>
+      </div>
+      <div class="fld-row">
+        <div class="fld"><label for="sMin">בעיבוד מרוכז, לדלג על שיחות קצרות מ-</label><select class="inp" id="sMin">${[[0, 'לא לדלג'], [5, '5 שניות'], [8, '8 שניות'], [15, '15 שניות'], [30, '30 שניות'], [60, 'דקה']].map(([v, l]) => `<option value="${v}"${+st.batchMinSec === v ? ' selected' : ''}>${l}</option>`).join('')}</select></div>
+        <div class="fld"><label for="sConc">שיחות במקביל בעיבוד מרוכז</label><select class="inp" id="sConc">${[1, 2, 3, 4, 6].map(v => `<option${+st.concurrency === v ? ' selected' : ''}>${v}</option>`).join('')}</select></div>
+      </div>
+      <label class="tgl" style="margin-bottom:12px"><input type="checkbox" id="sFollow" ${st.followTr ? 'checked' : ''}>גלילה אוטומטית בתמלול בזמן ניגון</label>
+    </div>
+    <div class="set-sec"><h3>נתונים</h3>
+      <p class="note" style="margin:-6px 0 10px">הארכיון (רשימת ההקלטות, תמלולים, סיכומים, הערות ושמות) נשמר בדפדפן הזה. מומלץ לשמור גיבוי מדי פעם.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"><button class="btn sm" id="sBak" type="button">${I.dl}שמירת גיבוי</button><button class="btn sm" id="sRes" type="button">טעינת גיבוי</button><button class="btn sm" id="sCsv" type="button">ייצוא הכל לאקסל</button><button class="btn sm" id="sCon" type="button">${I.people}ייבוא שמות מאנשי הקשר</button><span style="flex:1"></span><button class="btn sm danger" id="sClear" type="button">${I.trash}מחיקת הארכיון</button></div>
+    </div>
+    <p class="note">קיצורי מקשים: רווח לניגון והשהיה, חצים ימינה/שמאלה לקפיצה של 5 שניות, J / K לשיחה הבאה והקודמת, / לחיפוש, Esc לסגירה.</p>
+  </div>`);
+  const sStt = $('#sStt', body), sSttM = $('#sSttM', body), sLlm = $('#sLlm', body), sLlmM = $('#sLlmM', body);
+  const sSttX = $('#sSttMX', body), sLlmX = $('#sLlmMX', body);
+  const tmp = { sttModel: { ...st.sttModel }, llmModel: { ...st.llmModel } };
+  const fillSel = (sel, inp, hint, kind, prov, cur) => {
+    const cat = MODEL_CATALOG[kind + '-' + prov] || [];
+    const live = LS.get('ca-models', {})[kind + '-' + prov] || [];
+    const liveSet = new Set(live);
+    const extra = live.filter(id => !cat.some(c => c.id === id)).sort().reverse();
+    const known = new Set([...cat.map(c => c.id), ...extra]);
+    const opt = (id, note) => `<option value="${esc(id)}">${esc(id)}${note ? ' · ' + esc(note) : ''}</option>`;
+    let html = `<optgroup label="${live.length ? 'מומלצים (✓ = זמין בחשבון שלך)' : 'מומלצים'}">${cat.map(c => opt(c.id, (live.length && liveSet.has(c.id) ? '✓ ' : '') + (c.note || ''))).join('')}</optgroup>`;
+    if (extra.length) html += `<optgroup label="עוד מודלים שזמינים בחשבון שלך (${extra.length})">${extra.map(id => opt(id, '')).join('')}</optgroup>`;
+    if (cur && !known.has(cur)) html += `<optgroup label="המודל השמור">${opt(cur, '')}</optgroup>`;
+    html += '<option value="__custom">אחר: הקלדת שם מודל ידנית…</option>';
+    sel.innerHTML = html; sel.value = cur || cat[0]?.id || ''; inp.hidden = true; inp.value = '';
+    hint.textContent = live.length ? `${known.size} מודלים ברשימה, ${live.length} מהם נמצאו בחשבון שלך.` : `${cat.length} מודלים ברשימה. לחץ "בדיקה" ליד המפתח כדי להוסיף את כל המודלים שזמינים בחשבון שלך.`;
+  };
+  const fill = () => {
+    fillSel(sSttM, sSttX, $('#sSttH', body), 'stt', sStt.value, tmp.sttModel[sStt.value]);
+    fillSel(sLlmM, sLlmX, $('#sLlmH', body), 'llm', sLlm.value, tmp.llmModel[sLlm.value]);
+  };
+  const onSel = (sel, inp, bag, provSel) => () => { if (sel.value === '__custom') { inp.hidden = false; inp.value = bag[provSel.value] || ''; inp.focus(); } else { inp.hidden = true; bag[provSel.value] = sel.value; } };
+  sStt.onchange = sLlm.onchange = fill;
+  sSttM.onchange = onSel(sSttM, sSttX, tmp.sttModel, sStt); sLlmM.onchange = onSel(sLlmM, sLlmX, tmp.llmModel, sLlm);
+  sSttX.oninput = () => { tmp.sttModel[sStt.value] = sSttX.value.trim(); }; sLlmX.oninput = () => { tmp.llmModel[sLlm.value] = sLlmX.value.trim(); };
+  fill();
+  const loadModels = async (k, key, quiet) => {
+    const stEl = $(`[data-st="${k}"]`, body);
+    if (!quiet) { stEl.className = 'st'; stEl.innerHTML = '<span class="spin"></span> בודק…'; }
+    try {
+      const models = await testKey(k, key);
+      const cls = classifyModels(k, models); const cache = LS.get('ca-models', {});
+      let n = 0; for (const [kk, v] of Object.entries(cls)) { if (v.length) { cache[kk] = v; n = Math.max(n, v.length); } }
+      LS.set('ca-models', cache);
+      stEl.className = 'st ok'; stEl.textContent = 'המפתח תקין' + (n ? `. נמצאו ${n} מודלים שאפשר להשתמש בהם, והם נוספו לרשימות המודלים.` : '.');
+      fill();
+    } catch (err) { if (!quiet || err.status) { stEl.className = 'st err'; stEl.textContent = err.message; } }
+  };
+  for (const k of ['gemini', 'openai', 'groq', 'anthropic']) if ((S.keys[k] || '').trim()) loadModels(k, S.keys[k], true);
+  body.addEventListener('click', async e => {
+    const tb = e.target.closest('[data-test]');
+    if (tb) { const k = tb.dataset.test; loadModels(k, $(`[data-key="${k}"]`, body).value, false); }
+    if (e.target.closest('#sBak')) exportBackup();
+    if (e.target.closest('#sRes')) $('#jsonInput').click();
+    if (e.target.closest('#sCsv')) exportCSV(S.recs);
+    if (e.target.closest('#sCon')) pickContactsFile();
+    if (e.target.closest('#sClear')) {
+      const ok = await confirmBox('מחיקת הארכיון', 'למחוק את כל הארכיון מהדפדפן: רשימת ההקלטות, תמלולים, סיכומים, הערות, שמות ותיקיות? קבצי ההקלטות במחשב לא יימחקו. כדאי לשמור גיבוי קודם.', 'מחיקה', 'danger');
+      if (ok) { await DB.clear('recs'); await DB.clear('folders'); await DB.clear('kv'); location.reload(); }
+    }
+  });
+  modal({
+    title: 'הגדרות', wide: true, body,
+    actions: [{ label: 'שמירה', cls: 'primary', onClick: c => {
+      if (!sSttX.hidden) tmp.sttModel[sStt.value] = sSttX.value.trim(); if (!sLlmX.hidden) tmp.llmModel[sLlm.value] = sLlmX.value.trim();
+      st.sttProvider = sStt.value; st.llmProvider = sLlm.value; st.sttModel = tmp.sttModel; st.llmModel = tmp.llmModel;
+      for (const k of Object.keys(st.sttModel)) if (!st.sttModel[k]) st.sttModel[k] = DEFAULT_SETTINGS.sttModel[k];
+      for (const k of Object.keys(st.llmModel)) if (!st.llmModel[k]) st.llmModel[k] = DEFAULT_SETTINGS.llmModel[k];
+      st.hideShort = +$('#sHide', body).value; st.theme = $('#sTheme', body).value; st.batchMinSec = +$('#sMin', body).value; st.concurrency = +$('#sConc', body).value; st.followTr = $('#sFollow', body).checked;
+      $$('[data-key]', body).forEach(i => { const v = i.value.trim(); if (v) S.keys[i.dataset.key] = v; else delete S.keys[i.dataset.key]; });
+      LS.set('ca-keys', S.keys); saveSettings(); applyTheme(); refresh(); c(); toast('ההגדרות נשמרו');
+    } }, { label: 'ביטול' }],
+  });
+}
+$('#settingsBtn').onclick = openSettings;
+function applyTheme() { const t = S.settings.theme; if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; setTimeout(drawWave, 30); }
+
+/* =====================================================================
+   keyboard
+   ===================================================================== */
+document.addEventListener('keydown', e => {
+  const tag = e.target.tagName, typing = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable;
+  if ($('#modals').children.length) return;
+  if (e.key === 'Escape') { if (typing) { e.target.blur(); return; } if (S.aside) closeAside(); return; }
+  if (typing || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.key === '/') { e.preventDefault(); qInput.focus(); qInput.select(); }
+  else if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+  else if (e.key === 'ArrowRight' && P.entry) { e.preventDefault(); P.audio.currentTime = Math.min(P.audio.duration || 0, P.audio.currentTime + 5); tick(); }
+  else if (e.key === 'ArrowLeft' && P.entry) { e.preventDefault(); P.audio.currentTime = Math.max(0, P.audio.currentTime - 5); tick(); }
+  else if (e.key === 'j' || e.key === 'J' || e.key === 'ח') { const n = neighbor(1); if (n) { play(n.id); if (S.aside?.type === 'rec') openRec(n.id); } }
+  else if (e.key === 'k' || e.key === 'K' || e.key === 'ל') { const n = neighbor(-1); if (n) { play(n.id); if (S.aside?.type === 'rec') openRec(n.id); } }
+});
+window.addEventListener('beforeunload', e => { if (Jobs.running || syncing) { e.preventDefault(); e.returnValue = ''; } });
+
+/* =====================================================================
+   start
+   ===================================================================== */
+(async function init() {
+  await DB.open();
+  try {
+    const [recs, folders, settings, aliases] = await Promise.all([DB.all('recs'), DB.all('folders'), DB.get('kv', 'settings'), DB.get('kv', 'aliases')]);
+    if (settings) S.settings = { ...structuredClone(DEFAULT_SETTINGS), ...settings, sttModel: { ...DEFAULT_SETTINGS.sttModel, ...(settings.sttModel || {}) }, llmModel: { ...DEFAULT_SETTINGS.llmModel, ...(settings.llmModel || {}) } };
+    S.aliases = aliases || {};
+    folders.forEach(f => S.folders.set(f.id, f));
+    addRecs(recs);
+  } catch (e) { console.error(e); toast('טעינת הארכיון נכשלה: ' + e.message, 'err'); }
+  S.keys = LS.get('ca-keys', {});
+  S.view = LS.get('ca-view', 'list'); if (!VIEWS[S.view]) S.view = 'list';
+  rebuildIndexes();
+  applyTheme(); setSpeedLabel(); $('#pAuto').checked = !!S.settings.autoNext; setPlayIcon();
+  if (S.recs.length) { const d = new Date(S.recs[0].ts); S.calMonth = new Date(d.getFullYear(), d.getMonth(), 1).getTime(); }
+  updateSyncBtn(); refresh(); renderBanner(); drawWave();
+  window.__app = { S, P, DB };
+})();
+
+</script>
+</body>
+</html>
