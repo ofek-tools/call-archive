@@ -1515,7 +1515,7 @@ function renderFilters() {
   <div class="fbar">
     <div class="seg" id="fDate" role="group" aria-label="טווח תאריכים">${dates.map(([k, l]) => `<button data-v="${k}" class="${f.date === k ? 'on' : ''}">${l}</button>`).join('')}</div>
     <span class="range"${f.date === 'custom' ? '' : ' hidden'}><input class="inp" type="date" id="fFrom" value="${f.from}"><span>עד</span><input class="inp" type="date" id="fTo" value="${f.to}"></span>
-    <input class="inp contact-in" id="fContact" list="dlContacts" placeholder="+ איש קשר" autocomplete="off"><datalist id="dlContacts">${S.contacts.slice(0, 1500).map(c => `<option value="${esc(c.who)}">${nf(c.n)} שיחות</option>`).join('')}</datalist>
+    <input class="inp contact-in" id="fContact" list="dlContacts" placeholder="+ איש קשר" autocomplete="off"><datalist id="dlContacts">${S.contacts.slice(0, 1500).map(c => `<option value="${esc(c.who)}">${nCalls(c.n)}</option>`).join('')}</datalist>
     <select class="inp" id="fDur" title="משך שיחה">${opts(DUR_OPTS, f.dur)}</select>
     <select class="inp" id="fStatus" title="מצב">${opts(STATUS_OPTS, f.status)}</select>
     <select class="inp" id="fSort" title="מיון">${opts(SORT_OPTS, f.sort)}</select>
@@ -1658,7 +1658,7 @@ function renderList() {
       if (it.day) {
         if (cur !== null) parts.push('</div>');
         const ts = dkeyToTs(it.day);
-        parts.push(`<div class="day" data-day="${it.day}"><div class="day-h"><span class="day-n">${fmtDayLong(ts)}</span>${it.day === today ? '<span class="badge">היום</span>' : it.day === yest ? '<span class="badge">אתמול</span>' : ''}<span class="day-t">${fmtTotal(it.s)}</span><span class="day-c">${nf(it.n)} שיחות</span></div>`);
+        parts.push(`<div class="day" data-day="${it.day}"><div class="day-h"><span class="day-n">${fmtDayLong(ts)}</span>${it.day === today ? '<span class="badge">היום</span>' : it.day === yest ? '<span class="badge">אתמול</span>' : ''}<span class="day-t">${fmtTotal(it.s)}</span><span class="day-c">${nCalls(it.n)}</span></div>`);
         cur = it.day;
       } else parts.push(rowHTML(it, !grouped));
     }
@@ -1705,6 +1705,7 @@ viewEl.addEventListener('input', e => { if (e.target.id === 'pplQ') { S.peopleQ 
 
 /* calendar */
 function fmtCompact(s) { s = Math.round(s || 0); if (s < 60) return `${s} שנ׳`; if (s < 3600) return `${Math.round(s / 60)} ד׳`; return `${Math.floor(s / 3600)}:${pad(Math.floor(s % 3600 / 60))} ש׳`; }
+function nCalls(n) { return n === 1 ? 'שיחה אחת' : `${nf(n)} שיחות`; }
 const heat = sec => !sec ? 0 : sec < 600 ? 1 : sec < 1800 ? 2 : sec < 3600 ? 3 : sec < 7200 ? 4 : 5;
 function dayAgg(list) { const m = new Map(); for (const r of list) { let a = m.get(r._.dk); if (!a) { a = { n: 0, s: 0, recs: [] }; m.set(r._.dk, a); } a.n++; a.s += r.dur || 0; a.recs.push(r); } return m; }
 function renderCalendar() {
@@ -1726,7 +1727,7 @@ function renderCalendar() {
       if (mo >= 0) lastMon = mo;
     }
     const k = dkey(d), a = agg.get(k), out = d > end;
-    cells.push(`<button class="c ${out ? 'x' : 'h' + heat(a?.s)}${k === S.calDay ? ' on' : ''}" style="grid-column:${col};grid-row:${d.getDay() + 2}" data-day="${k}" ${out ? 'disabled' : ''} data-tip="${fmtDayLong(d.getTime(), true)}\n${a ? `${fmtTotal(a.s)} · ${a.n} שיחות` : 'אין שיחות'}"></button>`);
+    cells.push(`<button class="c ${out ? 'x' : 'h' + heat(a?.s)}${k === S.calDay ? ' on' : ''}" style="grid-column:${col};grid-row:${d.getDay() + 2}" data-day="${k}" ${out ? 'disabled' : ''} data-tip="${fmtDayLong(d.getTime(), true)}\n${a ? `${fmtTotal(a.s)} · ${nCalls(a.n)}` : 'אין שיחות'}"></button>`);
     if (cells.length > 4000) break;
   }
   const m0 = new Date(S.calMonth), y = m0.getFullYear(), mo = m0.getMonth();
@@ -1737,7 +1738,7 @@ function renderCalendar() {
   for (let dd = 1; dd <= days; dd++) {
     const k = `${y}-${pad(mo + 1)}-${pad(dd)}`, a = agg.get(k);
     if (a) { monTot += a.s; monN += a.n; monDays++; }
-    mcells.push(`<button class="dc h${heat(a?.s)}${k === today ? ' today' : ''}${k === S.calDay ? ' on' : ''}" data-day="${k}" data-tip="${fmtDayLong(dkeyToTs(k), true)}${a ? `\n${a.n} שיחות, ${fmtTotal(a.s)}` : '\nאין שיחות'}"><span class="dn">${dd}</span>${a ? `<span class="dm">${fmtCompact(a.s)}</span>` : ''}</button>`);
+    mcells.push(`<button class="dc h${heat(a?.s)}${k === today ? ' today' : ''}${k === S.calDay ? ' on' : ''}" data-day="${k}" data-tip="${fmtDayLong(dkeyToTs(k), true)}${a ? `\n${nCalls(a.n)}, ${fmtTotal(a.s)}` : '\nאין שיחות'}"><span class="dn">${dd}</span>${a ? `<span class="dm">${fmtCompact(a.s)}</span>` : ''}</button>`);
   }
   const sel = S.calDay ? agg.get(S.calDay) : null;
   let dayHTML;
@@ -1746,7 +1747,7 @@ function renderCalendar() {
     const dayStart = dkeyToTs(S.calDay);
     const people = new Set(recs.map(r => r._.who)).size;
     dayHTML = `<div class="dayp"><div class="dayp-h"><h2>${fmtDayLong(dayStart, true)}</h2></div>
-      <div class="big">${fmtTotal(sel?.s || 0)}</div><div class="sub">${sel ? `${nf(sel.n)} שיחות עם ${nf(people)} אנשים, השיחה הארוכה ${fmtDur(Math.max(...recs.map(r => r.dur)))}` : 'אין שיחות ביום הזה'}</div>
+      <div class="big">${fmtTotal(sel?.s || 0)}</div><div class="sub">${sel ? `${nCalls(sel.n)} עם ${people === 1 ? 'אדם אחד' : nf(people) + ' אנשים'}, השיחה הארוכה ${fmtDur(Math.max(...recs.map(r => r.dur)))}` : 'אין שיחות ביום הזה'}</div>
       ${sel ? `<div class="tl"><div class="tl-track">${recs.map(r => { const st = (r.ts - dayStart) / 864e5 * 100, w = (r.dur || 0) / 86400 * 100; return `<button class="tl-b" data-id="${r.id}" style="inset-inline-start:${st.toFixed(3)}%;inline-size:${w.toFixed(3)}%" data-tip="${fmtTime(r.ts)} ${esc(r._.who)}\n${fmtDur(r.dur)}"></button>`; }).join('')}</div>
       <div class="tl-ax">${[3, 6, 9, 12, 15, 18, 21].map(hh => `<span style="inset-inline-start:${hh / 24 * 100}%">${pad(hh)}:00</span>`).join('')}</div></div>
       <div>${recs.map(r => rowHTML(r, false)).join('')}</div>
@@ -1759,7 +1760,7 @@ function renderCalendar() {
       <div class="legend"><span>פחות</span>${[0, 1, 2, 3, 4, 5].map(i => `<i class="h${i}" data-tip="${['אין שיחות', 'עד 10 דק׳', '10–30 דק׳', '30–60 דק׳', '1–2 שעות', 'מעל שעתיים'][i]}"></i>`).join('')}<span>יותר</span></div></div>
     <div class="cal-main">
       <div class="mon"><div class="mon-h"><button class="ib" data-mon="-1" title="החודש הקודם">${I.chevR}</button><h2>${HE_MON[mo]} ${y}</h2><button class="ib" data-mon="1" title="החודש הבא">${I.chevL}</button>
-        <div class="tot"><b>${fmtTotal(monTot)}</b>${nf(monN)} שיחות ב-${monDays} ימים</div></div>
+        <div class="tot"><b>${fmtTotal(monTot)}</b>${nCalls(monN)} ${monDays === 1 ? 'ביום אחד' : 'ב-' + monDays + ' ימים'}</div></div>
         <div class="mg">${wkdays}${mcells.join('')}</div></div>
       ${dayHTML}
     </div></div>`;
@@ -1828,15 +1829,15 @@ function renderStats() {
       <div class="kpi"><div class="v">${fmtHours(tot)}</div><div class="l">שעות שיחה</div><div class="s">בממוצע ${fmtTotal(tot / span)} ביום</div></div>
       <div class="kpi"><div class="v">${fmtDur(tot / L.length)}</div><div class="l">אורך שיחה ממוצע</div><div class="s">חציון ${fmtDur(L.map(r => r.dur).sort((a, b) => a - b)[Math.floor(L.length / 2)])}</div></div>
       <div class="kpi"><div class="v">${fmtDur(longest.dur)}</div><div class="l">השיחה הארוכה ביותר</div><button class="s" data-longest="${longest.id}">${esc(longest._.who)}, ${fmtDateShort(longest.ts)}</button></div>
-      <div class="kpi"><div class="v">${fmtTotal(bestDay[1].s)}</div><div class="l">היום העמוס ביותר</div><button class="s" data-day="${bestDay[0]}" data-goday="1">${fmtDateShort(dkeyToTs(bestDay[0]))}, ${bestDay[1].n} שיחות</button></div>
+      <div class="kpi"><div class="v">${fmtTotal(bestDay[1].s)}</div><div class="l">היום העמוס ביותר</div><button class="s" data-day="${bestDay[0]}" data-goday="1">${fmtDateShort(dkeyToTs(bestDay[0]))}, ${nCalls(bestDay[1].n)}</button></div>
       <div class="kpi"><div class="v">${nf(ai)}</div><div class="l">שיחות מסוכמות ב-AI</div><div class="s">${L.length ? Math.round(ai / L.length * 100) : 0}% מהשיחות</div></div>
     </div>
     <div class="charts">
-      <div class="panel span2"><h3>זמן שיחה לפי חודש</h3><div class="ps">סה״כ דקות שיחה בכל חודש</div>${barChart(monItems, { tip: it => `${it.label}\n${fmtTotal(it.v)}, ${nf(it.n)} שיחות` })}</div>
-      <div class="panel"><h3>לפי שעה ביום</h3><div class="ps">מתי אתה מדבר הכי הרבה</div>${barChart(hours, { labelEvery: 3, tip: it => `${it.label}\n${fmtTotal(it.v)}, ${nf(it.n)} שיחות` })}</div>
-      <div class="panel"><h3>לפי יום בשבוע</h3><div class="ps">סה״כ זמן שיחה בכל יום</div>${barChart(wds, { tip: it => `${it.label}\n${fmtTotal(it.v)}, ${nf(it.n)} שיחות` })}</div>
-      <div class="panel"><h3>אנשי הקשר המובילים</h3><div class="ps">לפי זמן שיחה כולל. לחץ כדי לפתוח</div><div class="hb">${top.map(c => `<div class="hb-r" data-person="${esc(c.who)}" data-tip="${esc(c.who)}\n${nf(c.n)} שיחות, ${fmtTotal(c.s)}"><span class="n">${esc(c.who)}</span><span><i class="b" style="display:block;inline-size:${(c.s / topMax * 100).toFixed(1)}%"></i></span><span class="v">${fmtTotal(c.s)}</span></div>`).join('')}</div></div>
-      <div class="panel"><h3>אורך השיחות</h3><div class="ps">כמה שיחות בכל טווח משך</div>${barChart(buckets, { fmt: v => nf(v) + ' שיחות', tip: it => `${it.label}\n${nf(it.v)} שיחות, ${fmtTotal(it.s)}` })}</div>
+      <div class="panel span2"><h3>זמן שיחה לפי חודש</h3><div class="ps">סה״כ דקות שיחה בכל חודש</div>${barChart(monItems, { tip: it => `${it.label}\n${fmtTotal(it.v)}, ${nCalls(it.n)}` })}</div>
+      <div class="panel"><h3>לפי שעה ביום</h3><div class="ps">מתי אתה מדבר הכי הרבה</div>${barChart(hours, { labelEvery: 3, tip: it => `${it.label}\n${fmtTotal(it.v)}, ${nCalls(it.n)}` })}</div>
+      <div class="panel"><h3>לפי יום בשבוע</h3><div class="ps">סה״כ זמן שיחה בכל יום</div>${barChart(wds, { tip: it => `${it.label}\n${fmtTotal(it.v)}, ${nCalls(it.n)}` })}</div>
+      <div class="panel"><h3>אנשי הקשר המובילים</h3><div class="ps">לפי זמן שיחה כולל. לחץ כדי לפתוח</div><div class="hb">${top.map(c => `<div class="hb-r" data-person="${esc(c.who)}" data-tip="${esc(c.who)}\n${nCalls(c.n)}, ${fmtTotal(c.s)}"><span class="n">${esc(c.who)}</span><span><i class="b" style="display:block;inline-size:${(c.s / topMax * 100).toFixed(1)}%"></i></span><span class="v">${fmtTotal(c.s)}</span></div>`).join('')}</div></div>
+      <div class="panel"><h3>אורך השיחות</h3><div class="ps">כמה שיחות בכל טווח משך</div>${barChart(buckets, { fmt: v => nCalls(v), tip: it => `${it.label}\n${nCalls(it.v)}, ${fmtTotal(it.s)}` })}</div>
     </div></div>`;
   $$('[data-goday]', viewEl).forEach(b => b.addEventListener('click', ev => { ev.stopPropagation(); S.calDay = b.dataset.day; const d = new Date(dkeyToTs(S.calDay)); S.calMonth = new Date(d.getFullYear(), d.getMonth(), 1).getTime(); setView('calendar'); }));
 }
@@ -1927,12 +1928,12 @@ function contactAsideHTML(who) {
     <div class="as-actions">
       <button class="btn primary" data-a="cfilter">${I.list}הצג את כל השיחות</button>
       <button class="btn ai" data-a="cask">${I.ai}שאלה על השיחות</button>
-      ${todo ? `<button class="btn ai" data-a="cbatch">${I.ai}סיכום ${nf(todo)} שיחות</button>` : ''}
+      ${todo ? `<button class="btn ai" data-a="cbatch">${I.ai}סיכום ${nCalls(todo)}</button>` : ''}
     </div>
     <section class="as-sec"><h3>זמן שיחה לפי חודש</h3>
       <div class="cmon">${mv.map((v, i) => `<i style="block-size:${(v / mmax * 100).toFixed(1)}%" data-tip="${HE_MON[+months[i].slice(5) - 1]} ${months[i].slice(0, 4)}\n${fmtTotal(v)}"></i>`).join('')}</div>
       <div class="cmon-x">${months.map(m => `<span>${HE_MON_S[+m.slice(5) - 1]}</span>`).join('')}</div>
-      <p class="note" style="margin:10px 0 0">שיחה ראשונה ${fmtDateShort(first)}. ${sums ? `${nf(sums)} שיחות מסוכמות.` : ''}</p>
+      <p class="note" style="margin:10px 0 0">שיחה ראשונה ${fmtDateShort(first)}. ${sums ? (sums === 1 ? 'שיחה אחת מסוכמת.' : `${nf(sums)} שיחות מסוכמות.`) : ''}</p>
     </section>
     <section class="as-sec"><div class="sec-h"><h3>שיחות אחרונות</h3></div><div class="mini-rows">${recs.slice(0, 25).map(o => rowHTML(o, true)).join('')}</div></section>
   </div>`;
@@ -2035,7 +2036,7 @@ async function startBatch(recs) {
   if (!todo.length) { toast(skipped ? `כל השיחות שנשארו קצרות מ-${min} שניות` : 'כל השיחות כבר מסוכמות'); return; }
   const sec = todo.reduce((a, r) => a + (todo.length && !r.tr ? r.dur : 0), 0);
   try { needKey(STT_PROV[S.settings.sttProvider].key); needKey(LLM_PROV[S.settings.llmProvider].key); } catch (e) { showErr(e); return; }
-  const ok = await confirmBox('תמלול וסיכום', `יתומללו ויסוכמו <b>${nf(todo.length)}</b> שיחות (${fmtTotal(sec)} אודיו לתמלול)${skipped ? `, בלי ${nf(skipped)} שיחות קצרות מ-${min} שניות` : ''}.<br>תמלול: ${esc(STT_PROV[S.settings.sttProvider].label)}. סיכום: ${esc(LLM_PROV[S.settings.llmProvider].label)}.<br><span class="note">הפעולה משתמשת במפתחות ה-API שלך ועשויה לעלות כסף אצל הספק. אפשר לעצור בכל רגע.</span>`, 'התחלה');
+  const ok = await confirmBox('תמלול וסיכום', `יתומללו ויסוכמו <b>${nf(todo.length)}</b> שיחות (${fmtTotal(sec)} אודיו לתמלול)${skipped ? `, בלי ${nCalls(skipped)} קצרות מ-${min} שניות` : ''}.<br>תמלול: ${esc(STT_PROV[S.settings.sttProvider].label)}. סיכום: ${esc(LLM_PROV[S.settings.llmProvider].label)}.<br><span class="note">הפעולה משתמשת במפתחות ה-API שלך ועשויה לעלות כסף אצל הספק. אפשר לעצור בכל רגע.</span>`, 'התחלה');
   if (!ok) return;
   Object.assign(Jobs, { running: true, stop: false, done: 0, fail: 0, total: todo.length, lastErr: '' });
   renderJobs();
@@ -2050,7 +2051,7 @@ async function startBatch(recs) {
   };
   await Promise.all(Array.from({ length: conc }, worker));
   Jobs.running = false; renderJobs();
-  toast(`הסתיים: ${nf(Jobs.done)} שיחות סוכמו${Jobs.fail ? `, ${nf(Jobs.fail)} נכשלו` : ''}`, Jobs.fail && !Jobs.done ? 'err' : '');
+  toast(`הסתיים: ${Jobs.done === 1 ? 'שיחה אחת סוכמה' : nf(Jobs.done) + ' שיחות סוכמו'}${Jobs.fail ? `, ${nf(Jobs.fail)} נכשלו` : ''}`, Jobs.fail && !Jobs.done ? 'err' : '');
   rebuildIndexes(); renderFilters();
 }
 function renderJobs() {
@@ -2068,7 +2069,7 @@ function openAsk(recs, label) {
   const withAI = recs.filter(r => r.sum || r.tr).length;
   const m = modal({
     title: 'שאלה על השיחות', wide: true,
-    body: `<p style="margin:0 0 10px">${esc(label)}: ${nf(recs.length)} שיחות, מתוכן <b>${nf(withAI)}</b> עם תמלול או סיכום. ה-AI עונה רק על סמך השיחות שכבר עובדו${withAI > 60 ? ' (נשלחות האחרונות שבהן, עד שמגיעים למגבלת האורך)' : ''}.</p>
+    body: `<p style="margin:0 0 10px">${esc(label)}: ${nCalls(recs.length)}, מתוכן <b>${nf(withAI)}</b> עם תמלול או סיכום. ה-AI עונה רק על סמך השיחות שכבר עובדו${withAI > 60 ? ' (נשלחות האחרונות שבהן, עד שמגיעים למגבלת האורך)' : ''}.</p>
       ${withAI ? '' : `<div class="ai-err" style="color:var(--ink);background:var(--brass-soft)">עוד אין תמלולים לשיחות האלה. אפשר להפעיל "תמלול וסיכום" ואז לשאול.</div>`}
       <div class="ask-row" style="margin-top:10px"><input class="inp" id="mAsk" placeholder="למשל: מה סיכמנו לגבי המחיר? על מה דיברנו בפעם האחרונה?" autofocus></div>
       <div class="answer" id="mAns"></div>`,
@@ -2077,7 +2078,7 @@ function openAsk(recs, label) {
   const go = async b => {
     const q = $('#mAsk', m.el).value.trim(); if (!q) return;
     const out = $('#mAns', m.el); out.innerHTML = '<span class="spin"></span> קורא את השיחות וחושב…'; b && (b.disabled = true);
-    try { const r = await askAbout(recs, q); out.innerHTML = mdLite(r.ans) + `<p class="note">התשובה מבוססת על ${nf(r.used)} שיחות.</p>`; }
+    try { const r = await askAbout(recs, q); out.innerHTML = mdLite(r.ans) + `<p class="note">התשובה מבוססת על ${nCalls(r.used)}.</p>`; }
     catch (err) { out.innerHTML = ''; showErr(err); } finally { b && (b.disabled = false); }
   };
   $('#mAsk', m.el).addEventListener('keydown', e => { if (e.key === 'Enter') go($('.m-foot .btn.primary', m.el)); });
