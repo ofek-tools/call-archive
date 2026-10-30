@@ -2,6 +2,9 @@
 
 כלי לצפייה וניגון של הקלטות שיחה מטלפונים כשרים של אסקולס ו-QLYX.
 
-לפתיחה: https://ofek-tools.github.io/call-archive/
+להורדה: https://github.com/ofek-tools/call-archive/raw/main/call-archive.zip
+מחלצים את הקובץ ופותחים את "ארכיון שיחות.html" בכרום או באדג'.
+
+לפתיחה כאתר: https://ofek-tools.github.io/call-archive/
 
 הקבצים נקראים ישירות מהמחשב ולא עולים לשום מקום. כל הנתונים נשמרים בדפדפן של המשתמש.
